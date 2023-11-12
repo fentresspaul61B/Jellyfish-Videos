@@ -11,7 +11,7 @@ on:
 env:
   PROJECT_ID: video-generation-404817 # TODO: update Google Cloud project id
   # SERVICE: predict-ser # TODO: update Cloud Run service name
-  SERVICE: upload_to_youtube # Changing to a new service for dev. 
+  SERVICE: service: upload-to-youtube # Changing to a new service for dev. 
   REGION: us-central1 # TODO: update Cloud Run service region
 
 jobs:
