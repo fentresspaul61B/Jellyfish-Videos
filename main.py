@@ -6,6 +6,10 @@ import tempfile
 
 app = FastAPI()
 
+
+# Start API: uvicorn main:app --reload
+# Following Link: http://127.0.0.1:8000/docs 
+
 @app.post("/uploadfile/")
 async def create_upload_file(file: UploadFile):
     with tempfile.NamedTemporaryFile(delete=False) as temp_file:
