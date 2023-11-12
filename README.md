@@ -1,1 +1,5 @@
-# Jelly-Fish-Videos
+# Fully Autonomous YouTube Channel (About Jellyfish)
+
+
+
+
