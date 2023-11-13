@@ -55,7 +55,7 @@ YOUTUBE_API_VERSION = "v3"
 
 # This variable defines a message to display if the CLIENT_SECRETS_FILE is
 # missing.
-if false:
+if False:
     MISSING_CLIENT_SECRETS_MESSAGE = """
     WARNING: Please configure OAuth 2.0
 
