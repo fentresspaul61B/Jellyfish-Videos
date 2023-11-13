@@ -1,3 +1,13 @@
+# Required permissions, for service account:
+# 1. artifact registery admin
+# 2. cloud run admin 
+# 3. cloud storage bucket admin 
+# 4. Cloud build admin 
+# 5. Service account user.
+# Enable cloud build API 
+# Enable cloud artifact registery api. 
+# Enable compute engine API
+
 # 
 name: Deploy to Cloud Run from Source
 
@@ -52,7 +62,7 @@ jobs:
 
       - name: Update Cloud Run Memory
         run: |
-          gcloud run services update ${{ env.SERVICE }} --memory 8Gi --region ${{ env.REGION }} --platform managed
+          gcloud run services update ${{ env.SERVICE }} --memory 4Gi --region ${{ env.REGION }} --platform managed
         env:
           GCLOUD_PROJECT: ${{ env.PROJECT_ID }}
 
