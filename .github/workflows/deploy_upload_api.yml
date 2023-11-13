@@ -7,7 +7,8 @@
 # Enable cloud build API 
 # Enable cloud artifact registery api. 
 # Enable compute engine API
-
+# Give your defult account, and give it access to the service account as a 
+# Cloud Run Service Agent and Cloud Build Service Agent
 # 
 name: Deploy to Cloud Run from Source
 
