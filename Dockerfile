@@ -36,5 +36,7 @@ RUN chmod +x /app/write_secrets.sh
 # Timeout is set to 0 to disable the timeouts of the workers to allow Cloud Run to handle instance scaling.
 # CMD exec gunicorn --bind :${PORT:-8000} --workers 1 --threads 8 --timeout 0 main:app
 
-CMD exec gunicorn --worker-class uvicorn.workers.UvicornWorker --bind :${PORT:-8000} --workers 1 --threads 8 --timeout 0 main:app
+# CMD exec gunicorn --worker-class uvicorn.workers.UvicornWorker --bind :${PORT:-8000} --workers 1 --threads 8 --timeout 0 main:app
+
+CMD /app/write_secrets.sh && exec gunicorn --worker-class uvicorn.workers.UvicornWorker --bind :${PORT:-8000} --workers 1 --threads 8 --timeout 0 main:app
 
