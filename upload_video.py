@@ -19,6 +19,34 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 
+import json
+import base64
+from base64 import b64decode
+
+def print_json_file_contents(file_path):
+    try:
+        # Attempt to open and print the contents of the JSON file
+        with open(file_path, 'r') as file:
+            file_contents = file.read()
+            json_data = json.loads(file_contents)
+            print(json.dumps(json_data, indent=2))  # Pretty print the JSON
+
+    except json.JSONDecodeError:
+        # If a JSONDecodeError is encountered, try Base64 decoding
+        try:
+            print("File contents could not be decoded as JSON. Attempting Base64 decode.")
+            base64_decoded = b64decode(file_contents)
+            json_data = json.loads(base64_decoded)
+            print(json.dumps(json_data, indent=2))  # Pretty print the JSON
+
+        except (json.JSONDecodeError, base64.binascii.Error) as e:
+            print(f"File contents could not be decoded as Base64 either. Error: {e}")
+
+    except FileNotFoundError:
+        print(f"The file {file_path} does not exist.")
+
+# You would call the function like this, replacing 'your_json_file.json' with your actual file name:
+print_json_file_contents('upload_video.py-oauth2.json')
 
 # Explicitly tell the underlying HTTP transport library not to retry, since
 # we are handling retry logic ourselves.
@@ -81,8 +109,9 @@ def get_authenticated_service():
 
     if os.path.exists(token_json):
         print("token.json path exists")
+        print_json_file_contents(token_json)
         credentials = Credentials.from_authorized_user_file(token_json, SCOPES)
-        
+          
 
     # If there are no (valid) credentials available, let the user log in.
     if not credentials or not credentials.valid:
