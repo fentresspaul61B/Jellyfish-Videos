@@ -159,8 +159,8 @@ def upload_video(
         print("Im here!") 
         youtube = None
         if os.path.exists(credentials):
-            credentials = Credentials.from_authorized_user_file(token_json, SCOPES)
-            youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, credentials=credentials)    
+            creds = Credentials.from_authorized_user_file(credentials, SCOPES)
+            youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, credentials=creds)    
 
 
     tags = keywords.split(",") if keywords else None
