@@ -80,7 +80,9 @@ def get_authenticated_service():
     token_json = 'token.json'  # Path to the token.json file
 
     if os.path.exists(token_json):
+        print("token.json path exists")
         credentials = Credentials.from_authorized_user_file(token_json, SCOPES)
+        
 
     # If there are no (valid) credentials available, let the user log in.
     if not credentials or not credentials.valid:
