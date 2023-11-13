@@ -154,9 +154,12 @@ def upload_video(
         # Local
         youtube = get_authenticated_service()
     except Exception as e:
-        
         credentials = "/upload_video.py-oauth2.json"
-        youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, credentials=credentials)
+
+        with open(auth_creds, 'w') as auth_creds:
+            auth_creds.write(credentials.to_json())
+ 
+        youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, credentials=auth_creds)
 
 
     tags = keywords.split(",") if keywords else None
