@@ -165,16 +165,28 @@ def resumable_upload(insert_request):
 
 
 
+TEST_TITLE = """🪼 "How Zoos and Aquariums Maintain Jellyfish Tanks: Sustainably Ethereal Beauty" #shorts #jellyfish"""
+TEST_DESCRIPTION = """Please donate to protect wild animals: https://www.wildanimalinitiative.org/donate
 
+🪼 If you love wild animals like jellyfish too, please donate to the wild animal initiative, which seeks to reduce harm caused to animals in the wild. 
+
+🪼Jellyfish are mesmerizing creatures! 
+
+🪼 This channel is dedicated to sharing interesting facts about jellyfish for entertainment and educational purposes. 
+
+🪼 If you enjoy these videos, please like, comment and subscribe for more jellyfish content. I create daily jellyfish content. 
+
+Video transcript:
+In zoos and aquariums, jellyfish are kept in specialized tanks called kreisels that mimic the gentle ocean currents and prevent the fragile animals from becoming trapped against surfaces or corners. The water quality, temperature, and salinity are carefully controlled to suit the specific needs of the jellyfish species. They are often fed a diet of zooplankton, which can include brine shrimp and other specially prepared foods. These conditions allow for the public display of jellyfish, showcasing their ethereal beauty in a safe and sustainable manner."""
 from googleapiclient.errors import HttpError
 
 def upload_video(
         file_path:     str,
-        title:         str = "test_video #Shorts",
-        description:   str = "test_video #Shorts",
+        title:         str = TEST_TITLE,
+        description:   str = TEST_DESCRIPTION,
         category:      str = "28",
         keywords:      str = "Shorts",
-        privacyStatus: str = "private"
+        privacyStatus: str = "public"
     ):
 
     if not os.path.exists(file_path):
