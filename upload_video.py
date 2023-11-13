@@ -156,7 +156,7 @@ def upload_video(
     except Exception as e:
         credentials = "/upload_video.py-oauth2.json"
 
-        with open(auth_creds, 'w') as auth_creds:
+        with open(credentials, 'w') as auth_creds:
             auth_creds.write(credentials.to_json())
  
         youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, credentials=auth_creds)
