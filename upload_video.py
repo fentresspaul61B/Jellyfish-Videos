@@ -154,7 +154,8 @@ def upload_video(
         # Local
         youtube = get_authenticated_service()
     except Exception as e:
-        credentials = "/upload_video.py-oauth2.json"
+        credentials = "upload_video.py-oauth2.json"
+            
         print("Im here!") 
         youtube = None
         if os.path.exists(credentials):
