@@ -27,8 +27,8 @@ COPY . ./
 # Install production dependencies.
 RUN pip install -r requirements.txt
 
-RUN echo "echo \"\$OAUTH2_JSON\" > /app/upload_video.py-oauth2.json" >> /app/write_secrets.sh
-RUN chmod +x /app/write_secrets.sh
+# RUN echo "echo \"\$OAUTH2_JSON\" > /app/upload_video.py-oauth2.json" >> /app/write_secrets.sh
+# RUN chmod +x /app/write_secrets.sh
 # Run the web service on container startup. Here we use the gunicorn
 # webserver, with one worker process and 8 threads.
 # For environments with multiple CPU cores, increase the number of workers
@@ -37,6 +37,13 @@ RUN chmod +x /app/write_secrets.sh
 # CMD exec gunicorn --bind :${PORT:-8000} --workers 1 --threads 8 --timeout 0 main:app
 
 # CMD exec gunicorn --worker-class uvicorn.workers.UvicornWorker --bind :${PORT:-8000} --workers 1 --threads 8 --timeout 0 main:app
+# The script to write the environment variables to files
+RUN echo "echo \"\$CLIENT_SECRETS_JSON\" > /app/client_secrets.json" > /app/write_secrets.sh
+RUN echo "echo \"\$TOKEN_JSON\" > /app/token.json" >> /app/write_secrets.sh
+RUN echo "echo \"\$OAUTH2_JSON\" > /app/upload_video.py-oauth2.json" >> /app/write_secrets.sh
+RUN chmod +x /app/write_secrets.sh
+
+
 
 CMD /app/write_secrets.sh && exec gunicorn --worker-class uvicorn.workers.UvicornWorker --bind :${PORT:-8000} --workers 1 --threads 8 --timeout 0 main:app
 

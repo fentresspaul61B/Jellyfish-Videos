@@ -150,19 +150,10 @@ def upload_video(
         print("Please specify a valid file.")
         return None
     
-    try:
-        # Local
-        youtube = get_authenticated_service()
-    except Exception as e:
-        credentials = "upload_video.py-oauth2.json"
-            
-        print("Im here!") 
-        youtube = None
-        if os.path.exists(credentials):
-            creds = Credentials.from_authorized_user_file(credentials, SCOPES)
-            youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, credentials=creds)    
-
-
+    
+    # Local
+    youtube = get_authenticated_service()
+   
     tags = keywords.split(",") if keywords else None
     body = {
         'snippet': {
