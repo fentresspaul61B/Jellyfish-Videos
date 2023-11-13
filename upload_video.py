@@ -55,21 +55,22 @@ YOUTUBE_API_VERSION = "v3"
 
 # This variable defines a message to display if the CLIENT_SECRETS_FILE is
 # missing.
-MISSING_CLIENT_SECRETS_MESSAGE = """
-WARNING: Please configure OAuth 2.0
+if false:
+    MISSING_CLIENT_SECRETS_MESSAGE = """
+    WARNING: Please configure OAuth 2.0
 
-To make this sample run you will need to populate the client_secrets.json file
-found at:
+    To make this sample run you will need to populate the client_secrets.json file
+    found at:
 
-   %s
+       %s
 
-with information from the API Console
-https://console.cloud.google.com/
+    with information from the API Console
+    https://console.cloud.google.com/
 
-For more information about the client_secrets.json file format, please visit:
-https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
-""" % os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                   CLIENT_SECRETS_FILE))
+    For more information about the client_secrets.json file format, please visit:
+    https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
+    """ % os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                       CLIENT_SECRETS_FILE))
 
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
@@ -148,9 +149,16 @@ def upload_video(
     if not os.path.exists(file_path):
         print("Please specify a valid file.")
         return None
-
-    youtube = get_authenticated_service()
     
+    try:
+        # Local
+        youtube = get_authenticated_service()
+    except Exception as e:
+        
+        credentials = "/upload_video.py-oauth2.json"
+        youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, credentials=credentials)
+
+
     tags = keywords.split(",") if keywords else None
     body = {
         'snippet': {
