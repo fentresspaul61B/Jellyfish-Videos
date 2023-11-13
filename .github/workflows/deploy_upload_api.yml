@@ -15,10 +15,9 @@ name: Deploy to Cloud Run from Source
 on:
   # Pipeline can be run through github UI in the actions tab.
   workflow_dispatch:
-  # push:
-
+  push:
     # Runs on pushes. 
-    # branches: [ "main" ]
+    branches: [ "main" ]
 env:
   PROJECT_ID: video-generation-404817 # TODO: update Google Cloud project id
   # SERVICE: predict-ser # TODO: update Cloud Run service name
