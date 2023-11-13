@@ -58,7 +58,7 @@ jobs:
           service: ${{ env.SERVICE }}
           region: ${{ env.REGION }}
           # NOTE: If required, update to the appropriate source folder
-          env_vars: GCP_CREDENTIALS=${{ secrets.GCP_CREDENTIALS }}
+          env_vars: GCP_CREDENTIALS=${{ secrets.GCP_CREDENTIALS }}, OAUTH2_JSON=${{ secrets.OAUTH2_JSON }} 
           source: ./
 
       - name: Update Cloud Run Memory
