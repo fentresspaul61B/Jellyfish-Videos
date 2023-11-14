@@ -34,7 +34,7 @@
       "a specific species of jelly",
     "the size and weight of jellyfish"
   ],
-  "QUESTION_RULES": "If information is not contained in the document, skip the question, and explain something you do know. Do not say what information is or is not contained in the document provided. Keep your response concise, and less than 100 words.",
+  "QUESTION_RULES": "If information is not contained in the document, skip the question, and explain something you do know. Do not say what information is or is not contained in the document provided. Keep your response concise, and less than 150 words.",
   "QUESTIONS": [
     "Can you give a brief summary of {topic}?",
     "Can you briefly explain {topic}?",

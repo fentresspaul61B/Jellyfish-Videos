@@ -215,7 +215,7 @@ def generate_youtube_shorts_scripts(video_script_prompts: list):
                 "VIDEO_TITLE_PROMPT":  video_title_prompt,
                 "VIDEO_TITLE":         video_title,
                 "NUM_CHARS_TITLE":     len(video_title),
-                "NUM_WORDS_TITLE":     len(video_script.split(" ")),
+                "NUM_WORDS_TITLE":     len(video_title.split(" ")),
                 "INFERENCE_ID":        inference_id,
                 "GPT_ASSISTANT_ID":    GPT_ASSISTANT_ID,
                 "DATE_TIME":           datetime_str, 
