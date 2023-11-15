@@ -316,8 +316,13 @@ def generate_youtube_shorts_scripts(video_script_prompts: list):
             num_tokens_title,
             num_tokens_title_prompt
         ]
-         
-        cost_of_inference = sum(total_tokens) * PRICE_PER_TOKEN
+
+        cost_of_tts = len(video_title) * .000015
+
+        cost_of_text_generation = sum(total_tokens) * PRICE_PER_TOKEN
+
+        # Total cost of inference. 
+        cost_of_inference = cost_of_tts + cost_of_text_generation
        
         inference_time = time.time() - inference_start_time
         
