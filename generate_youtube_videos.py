@@ -1,9 +1,16 @@
 """
-f"[0:v]trim=duration={duration},fade=t=out:st={audio_length}:d={fade_duration}:color=black[v]",
-This script is used to generate video scripts, titles, and inference ids
-and upload them to google sheets. The final function will also return a 
-dictionary of IDs as keys, and scripts as values, which can be passed to 
-the audio generation component, to generate audio. 
+This script is used to generate YouTube shorts using OpenAI Assistants 
+API, TTS API, and a long video to be used for background images.
+
+This script generates 100 videos of around 50 - 60 seconds in length, 
+as well as titles for the videos. 
+
+Here is an example of the videos that were generated:
+https://www.youtube.com/watch?v=CNIapv394yw
+
+The assistant uses facts added to its knowledge base to create 
+video transcripts based on a different questions and topics. 
+
 """
 # Pandas used to create video script csv and meta data. 
 import pandas as pd
@@ -86,6 +93,52 @@ ASSISTANT = OPEN_AI_CLIENT.beta.assistants.retrieve(
 THREAD = OPEN_AI_CLIENT.beta.threads.create()
 
 
+def segment_video(
+        input_video_path: str, 
+        output_dir:       str, 
+        segment_duration: int =60, 
+        volume:           int = 1
+    ):
+    """Slices longer video into shorter videos. Use the volume parameter to 
+    decrease the volume of the original video (1 is max vol 0 is silent)."""
+
+    # Checking if output dir exists, otherwise, make it.
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # Calculate volume filter expression.
+    volume_filter = f"volume={volume}"
+
+    # Construct the ffmpeg command for video segmentation.
+    command = [
+        'ffmpeg',
+        '-i', input_video_path,
+        '-c:v', 'copy',  # Copy the video stream to avoid re-encoding
+        '-map', '0',
+        '-segment_time', str(segment_duration),
+        '-f', 'segment',
+        '-reset_timestamps', '1'
+    ]
+
+    # If volume is altered, then we must re-encode audio
+    if volume != 1:
+        command.extend([
+            '-c:a', 'aac',  # Re-encode audio using the AAC codec
+            '-filter:a', volume_filter
+        ])
+    else: 
+        # Copy the audio stream.
+        command.append('-c:a', 'copy')  
+
+    # Creating the file names. These file names do not need a special ID 
+    # because they are randomly selected to create videos.
+    command.append(os.path.join(output_dir, 'jelly_fish_%03d.mp4'))
+
+    # Execute the command.
+    subprocess.run(command, check=True)
+
+    return output_dir
+
 def create_video_script_prompts():
     """Creates combinations of questions and topics, which are used 
     to generate videos."""
@@ -96,7 +149,8 @@ def create_video_script_prompts():
     for topic in VIDEO_TOPICS:
         for question_format in QUESTIONS:
             # Formatting the question and appending the rules
-            question = question_format.format(topic=topic) + " " + QUESTION_RULES
+            question =\
+                question_format.format(topic=topic) + " " + QUESTION_RULES
             result.append(question)
 
     return result
@@ -550,23 +604,29 @@ def generate_video_data(video_data_dir: str, audio_data_dir: str):
 def main():
     """Run the entire script."""
     
+    # 1. Cut long video to short videos. 
+    # short_videos = segment_video(long_video_path, output_dir)
+
+    # 2. Generate the prompts.
     # video_script_prompts = create_video_script_prompts()
-    
+   
+    # 3. Generate the scripts by calling API.
     # data = generate_youtube_shorts_scripts(video_script_prompts) 
-    
+   
+    # 4. Save data locally.
     # data.to_csv(f"{GOOGLE_SHEET_NAME}.csv")
 
+    # 5. Upload script data to Google Sheet.
     # upload_data_to_google_sheets(data)
-    
-    # generate_raw_audio_files(f"{GOOGLE_SHEET_NAME}.csv") 
-    
-    video_dir = "/Users/paulfentress/Desktop/one_minute_videos"
-    audio_dir = "jelly_fish_audio"
-    generate_video_data(video_dir, audio_dir)
-
+   
+    # 6. Create audio files from scripts. 
+    # audio_dir = generate_raw_audio_files(f"{GOOGLE_SHEET_NAME}.csv") 
+   
+    # 7. Generate YouTube videos from short videos and audio.   
+    # generate_video_data(short_vidoes, audio_dir)
 
 
 if __name__ == "__main__":
     main()
 
-       
+# f"[0:v]trim=duration={duration},fade=t=out:st={audio_length}:d={fade_duration}:color=black[v]",     
