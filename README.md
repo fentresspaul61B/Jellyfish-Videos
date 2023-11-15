@@ -1,14 +1,16 @@
 # Jellyfish GPT 
 [[Checkout the YouTube Channel!]](https://www.youtube.com/watch?v=-zABWWJjvCc)
+--- 
 ## AI Generated Educational Video Content About Jellyfish 
 This project uses FFPMEG, OpenAI Assistants, and OpenAI TTS to create short educational videos about jellyfish. The purpose of purpose of this project is to explore how to quickly generate batches of high quality and factual content using an OpenAI assistant with a knowledge base, which can be used for educational purposes. 
 
-
+--- 
 ## Table of Contents
 - [Example](#example)
 - [Motivation](#motivation)
 - [Implementation](#implementation)
 
+--- 
 ## Example
 
 Ask the jellyfish expert:
@@ -24,6 +26,8 @@ Video result:
 
 ![alt text](youtube.gif)
 
+
+--- 
 ## Motivation
 I enjoy watching YouTube videos, so I wanted to create my own using AI. YouTube is a large platform where a single video could be seen by thousands of people. My long term goal is to have a number of different channels that promote charities. I can quickly generate a high volume of content with the purpose of raising money to help solve important issues. For this initial video I have added in the description a link to a charity to help reduce harm caused to animals in the wild. 
 
