@@ -61,6 +61,9 @@ import subprocess
 with open('configs.json', 'r') as file:
     configs = json.load(file)
 
+with open('secrets.json', 'r') as file:
+    secrets = json.load(file)
+
 # Unpacking and assigning configurations.
 GPT_VOICES          = configs["GPT_VOICES"]
 GPT_BASE_MODEL      = configs["GPT_BASE_MODEL"]
@@ -72,13 +75,9 @@ PRICE_PER_TOKEN     = configs["PRICE_PER_TOKEN"]
 SPREADSHEET_ID      = configs["SPREADSHEET_ID"]
 GOOGLE_SHEET_NAME   = configs["GOOGLE_SHEET_NAME"]
 
-
-with open('secrets.json', 'r') as file:
-    secrets = json.load(file)
-
+# Unpacking secrets.
 OPENAI_API_KEY   = secrets["OPENAI_API_KEY"]
 GPT_ASSISTANT_ID = secrets["GPT_ASSISTANT_ID"]
-
 os.environ['OPENAI_API_KEY'] = OPENAI_API_KEY
 
 # Open AI client used for text generation and audio generation.
@@ -138,6 +137,7 @@ def segment_video(
     subprocess.run(command, check=True)
 
     return output_dir
+
 
 def create_video_script_prompts():
     """Creates combinations of questions and topics, which are used 
