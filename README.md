@@ -15,7 +15,7 @@ Video Title:
 
 Video result:
 
-![alt text](jellyfish_youtube.gif)
+![alt text](youtube.gif)
 
 This project uses FFPMEG, OpenAI Assistants, and OpenAI TTS to create short education videos about jellyfish. 
 
