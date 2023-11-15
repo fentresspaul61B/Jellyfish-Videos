@@ -98,8 +98,10 @@ def segment_video(
         segment_duration: int =60, 
         volume:           int = 1
     ):
-    """Slices longer video into shorter videos. Use the volume parameter to 
-    decrease the volume of the original video (1 is max vol 0 is silent)."""
+    """
+    Slices longer video into shorter videos. Use the volume parameter to 
+    decrease the volume of the original video (1 is max vol 0 is silent).
+    """
 
     # Checking if output dir exists, otherwise, make it.
     if not os.path.exists(output_dir):
@@ -140,8 +142,10 @@ def segment_video(
 
 
 def create_video_script_prompts():
-    """Creates combinations of questions and topics, which are used 
-    to generate videos."""
+    """
+    Creates combinations of questions and topics, which are used 
+    to generate videos.
+    """
     
     result = []
 
@@ -186,8 +190,10 @@ def token_counter(string: str, encoding_type: str) -> int:
 
 
 def ask_gpt_jellyfish_expert(question: str):
-    """Asks the GPT assistant with domain knowledge a quesetion and 
-    returns a text response."""
+    """
+    Asks the GPT assistant with domain knowledge a quesetion and 
+    returns a text response.
+    """
 
     # Creating the message.
     message = OPEN_AI_CLIENT.beta.threads.messages.create(
@@ -226,7 +232,9 @@ def ask_gpt_jellyfish_expert(question: str):
 
 
 def create_video_title(video_transcript: str):
-    """Calls GPT to create a video title based on the video transcript."""
+    """
+    Calls GPT to create a video title based on the video transcript.
+    """
 
     # The user message explains the context.
     system_message = CREATE_TITLE_PROMPT["SYSTEM"]
@@ -260,7 +268,9 @@ def create_video_title(video_transcript: str):
 
 
 def generate_youtube_shorts_scripts(video_script_prompts: list):
-    """Calling the API to create the scripts data csv and dataframe."""
+    """
+    Calling the API to create the scripts data csv and dataframe.
+    """
 
     # Randomly order the scripts. 
     random.shuffle(video_script_prompts)
@@ -338,7 +348,8 @@ def generate_youtube_shorts_scripts(video_script_prompts: list):
 
 
 def upload_data_to_google_sheets(df: pd.DataFrame):
-    """Loads entire dataframe into Google Sheet worksheet. Make sure to 
+    """
+    Loads entire dataframe into Google Sheet worksheet. Make sure to 
     load to a new worksheet, otherwise the previous one may be deleted.
     """
 
@@ -379,10 +390,12 @@ def upload_data_to_google_sheets(df: pd.DataFrame):
 
 def generate_raw_audio_files(
     script_csv_file: str, 
-    output_dir: str = "jelly_fish_audio" 
+    output_dir:      str = "jelly_fish_audio" 
     ):
-    """Text to speech generated from the video scripts. Voices are 
-    randomly picked from the avaiable from OpenAi.""" 
+    """
+    Text to speech generated from the video scripts. Voices are 
+    randomly picked from the avaiable from OpenAi.
+    """ 
 
     # Converting csv to dataframe.
     df = pd.read_csv(script_csv_file)
@@ -413,20 +426,10 @@ def generate_raw_audio_files(
     return file_path
 
 
-def upload_audio_data_to_GCP(audio_directory, gcp_bucket):
-    # Uploads a directory to GCP bucket. 
-   
-    # Terminal command.
-    command = f"gsutil -m cp {audio_directory}/* gs://{gcp_bucket}"
-
-    # Run the command.
-    process = subprocess.run(command, shell=True, check=True)
-
-    return process
-
-
 def get_audio_duration(audio_path: str):
-    """Using ffmpeg to get audio duration in seconds."""
+    """
+    Using ffmpeg to get audio duration in seconds.
+    """
 
     # Run the ffprobe command to get the duration of the audio file.
     command = [
@@ -460,8 +463,10 @@ def merge_audio_video(
         audio_path:  str, 
         output_path: str = 'test_vid.mp4'
     ):
-    """Adds audio to a video. Used to add the voice to the silent or 
-    quiet video."""
+    """
+    Adds audio to a video. Used to add the voice to the silent or 
+    quiet video.
+    """
     
     # Ensure the output directory exists.
     output_dir = os.path.dirname(output_path)
@@ -502,8 +507,10 @@ def fade_and_slice_video(
         audio_length:      str,
         fade_duration:     int = 2
     ):
-    """Adds a fade to black to the video, and slices the video after fade is 
-    complete."""
+    """
+    Adds a fade to black to the video, and slices the video after fade is 
+    complete.
+    """
     
     # Total video duration is the length of the audio + length of fade. 
     duration = audio_length + fade_duration
@@ -538,7 +545,9 @@ def process_raw_video_and_audio(
         final_video:  str,
         inference_id: str
     ):
-    """First adds audio to video, then fades and slices the video."""
+    """
+    First adds audio to video, then fades and slices the video.
+    """
     
     # Compute audio length. 
     audio_duration = get_audio_duration(raw_audio)
@@ -564,7 +573,9 @@ def process_raw_video_and_audio(
 
 
 def generate_video_data(video_data_dir: str, audio_data_dir: str):
-    """Creates the entire batch of YouTube shorts videos"""
+    """
+    Creates the entire batch of YouTube shorts videos
+    """
 
     # All the one minute videos.
     video_files = os.listdir(video_data_dir)
