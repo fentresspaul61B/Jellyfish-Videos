@@ -1,7 +1,7 @@
 # Jellyfish GPT 
 [[Checkout the YouTube Channel!]](https://www.youtube.com/watch?v=-zABWWJjvCc)
 ## AI Generated Educational Video Content About Jellyfish 
-This project uses FFPMEG, OpenAI Assistants, and OpenAI TTS to create short educational videos about jellyfish. The purpose of purpose of this project is to explore how to quickly generate batches of high quality video content, which can be used for educational purposes. 
+This project uses FFPMEG, OpenAI Assistants, and OpenAI TTS to create short educational videos about jellyfish. The purpose of purpose of this project is to explore how to quickly generate batches of high quality and factual content using an OpenAI assistant with a knowledge base, which can be used for educational purposes. 
 
 
 ## Table of Contents
@@ -50,6 +50,24 @@ Original Video: https://www.youtube.com/watch?v=I6yC840UJ2Y
 If you are the rightful owner of the original footage and wish for it to be removed, please contact me directly and I will promptly address your concerns.
 
 ## Implementation
+
+### Script Overview
+1. Cut long video into shorter videos.
+2. Generate YouTube video scripts and titles using assistant with knowledge base.
+3. Create audio files from YouTube scripts generated in the previous steps.
+4. Iterate over all audio data, and merge audio and video together using ffmpeg.
+5. Save data to folder.
+
+
+
+### GPT Assistant Knowledge Base:
+Sources: 
+- https://www.montereybayaquarium.org/animals/animals-a-to-z/jellies?gclid=CjwKCAiA6byqBhAWEiwAnGCA4IPlxw4o3J9X3A-D4msmsEMHDF2z-DdQIZY5xrXtyn7b6XkGlYsLiRoC7d4QAvD_BwE
+- https://www.mbari.org/news/
+- https://www.mbari.org/animal/bloody-belly-comb-jelly/
+- https://www.mbari.org/news/how-comb-jellies-adapted-to-life-in-the-deep-sea/
+- https://www.mbari.org/news/ctenophores-the-story-of-evolution-in-the-oceans/
+- https://ocean.si.edu/ocean-life/invertebrates/jellyfish-and-comb-jellies#section_16508
 
 
 
