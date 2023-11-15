@@ -1,5 +1,5 @@
 # Jellyfish GPT: AI Generated Educational Video Content About Jellyfish 
-
+![alt text](jellyfish_video.gif)
 [![Checkout the YouTube Channel!]](https://www.youtube.com/watch?v=-zABWWJjvCc)
 
 ## Table of Contents
