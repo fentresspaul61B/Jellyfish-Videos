@@ -1,4 +1,13 @@
-# Fully Autonomous YouTube Channel (About Jellyfish)
+# Jellyfish GPT: Generating Education Video Content About Jellyfish 
+
+[![Watch the video]](https://www.youtube.com/watch?v=-zABWWJjvCc)
+
+## Table of Contents
+- [Introduction](#Introduction)
+- [Motivation](#Motivation)
+- [Implementation](#Implementation)
+
+
 
 I am currently stuck trying to deploy the upload youtube API using 
 docker and cloud run. 
@@ -23,10 +32,5 @@ What I have not yet tried: Decoding the base64 json string inside GCP server.
 Print out the contents of the JSON (if possible)
 
 {Show video}
-
-## Table of Contents
-- [Introduction](#Introduction)
-- [Motivation](#Motivation)
-- [Implementation](#Implementation)
 
 
