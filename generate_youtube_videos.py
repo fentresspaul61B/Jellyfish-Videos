@@ -101,17 +101,17 @@ def initialize_empty_directories(output_dir=None):
     """    
 
     if not output_dir:     
-        # If no path passed, then used desktop.
-        output_dir = f"{DESKTOP_PATH}/{GOOGLE_SHEET_NAME}" 
+        # If no path passed, then use desktop.
+        output_dir = os.path.join(DESKTOP_PATH, GOOGLE_SHEET_NAME)
     
     # Making root dir.
     os.mkdir(output_dir)
 
     # Creating sub dirs. 
-    os.mkdir(f"{output_dir}/one_minute_videos")
-    os.mkdir(f"{output_dir}/raw_audio")
-    os.mkdir(f"{output_dir}/merged_videos")
-    os.mkdir(f"{output_dir}/final_videos")
+    os.mkdir(os.path.join(output_dir, "one_minute_videos"))
+    os.mkdir(os.path.join(output_dir, "raw_audio"))
+    os.mkdir(os.path.join(output_dir, "merged_videos"))
+    os.mkdir(os.path.join(output_dir, "final_videos"))
 
     return output_dir
 
@@ -635,11 +635,12 @@ def generate_video_data(video_data_dir: str, audio_data_dir: str):
     os.mkdir("processed_video_final")
 
     # Iterating over every audio transcript.
+
     for inference_id in inference_ids:
-        raw_audio = f"{audio_data_dir}/{inference_id}.mp3"
-        raw_video = f"{video_data_dir}/{random.choice(video_files)}"
-        merged_video = f"processed_video/{inference_id}.mp4"
-        final_video = f"processed_video_final/{inference_id}.mp4"
+        raw_audio = os.path.join(audio_data_dir, f"{inference_id}.mp3")
+        raw_video = os.path.join(video_data_dir, random.choice(video_files))
+        merged_video = os.path.join("processed_video", f"{inference_id}.mp4")
+        final_video = os.path.join("processed_video_final", f"{inference_id}.mp4")
 
         # Generating and saving the YouTube video.
         try:
