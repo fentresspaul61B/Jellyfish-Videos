@@ -9,7 +9,7 @@ This project uses FFPMEG, OpenAI Assistants, and OpenAI TTS to create short educ
 
 ## Table of Contents
 - [Files](#files)
-- [Implementation](#implementation)
+- [Implementation](#implementation)  
 - [Sources](#sources)
 
 ## Files 
@@ -24,26 +24,28 @@ Main script that has all functions to generate short form video content using Op
 Factual information from the web, about jellyfish, used for the agents knowledge base. 
 
 
-
+---
 ## Implementation
-![alt text](script_diagram.png)
 
-### Step #1: Add data to knowledge base. 
+
+<img src="script_diagram.png" alt="alt text" width="700"/>
+
+### Step #1: Add data to knowledge base
 In order to create content that is based on facts and avoid LLM hallucinations, factual scientific information from the web is utilized to create a knowledge base for the agent.  This knowledge base is stored in a text file. Below is a snippet from the knowledge base:
 
 > "Jellies play a vital role in ocean ecosystems. Not only do they eat plankton, but some are food for large animals like sea turtles. In Monterey Bay, for example, the enormous Pacific leatherback sea turtle travels across the Pacific Ocean, all the way from Indonesia, to feed specifically on sea nettles.
 A recent study led by the Aquarium showed that jellies are also threatened by microplastics, and that they serve as an entry point for microplastics in the open ocean food chain. This shows how important jellies are as a food source for many animals."
 
-### Step #2: Find a long and publicly available youtube video. 
+### Step #2: Find a long and publicly available youtube video
 Find a long video that is available to use freely. This longer video will serve as a background for the short videos we are creating. 
 
-### Step #3: Slice long videos into shorter videos. 
+### Step #3: Slice long videos into shorter videos
 FFMPEG was used to slice a longer video into shorter ones, as well as decrease or mute the volume of the original video. 
 
-### Step #4: Generate video scripts, titles and metadata. 
+### Step #4: Generate video scripts, titles and metadata
 Next step is to create YouTube scripts and titles using our OpenAI agent. The script is later converted to audio, to create the narration for the video. OpenAI API assistants were used to generate the text, and well as the Google Sheets API to store the metadata. The reason I chose to use Google Sheets, and not a database, is because it is easier to copy data from a google sheet into the YouTube UI. (I would automate the uploading of the YouTube videos; however, YouTube will block videos uploaded via the API). 
 
-#### Metadata:
+#### Metadata
 | Column Name         | Description          |
 |---------------------|----------------------|
 | VIDEO_SCRIPT_PROMPT | The prompt used to generate the video script        |
@@ -61,7 +63,7 @@ Next step is to create YouTube scripts and titles using our OpenAI agent. The sc
 | GPT_BASE_MODEL      | Model used       |
 | INFERENCE_TIME      | Time for text generation start to finish        |
 
-#### Example of prompts:
+#### Example of prompts
 Script Prompt:
 > Can you briefly explain the reproduction of jellyfish? If information is not contained in the document, skip the question, and explain something you do know. Do not say what information is or is not contained in the document provided. Keep your response concise, and less than 150 words.
 
@@ -79,12 +81,14 @@ Response (After adding emojis and hashtags):
 Once the video scripts are complete in text format, the audio is generated from the text, and saved to a directory.
 
 ### Step #6: Merge and edit short videos with audio using FFMPEG 
-Short videos are merged, trimmed, cropped, and faded using FFMPEG. A one minute background video is randomly selected from the batch, and merged with the audio iteratively 
+Short videos are merged, trimmed, cropped, and faded using FFMPEG. A one minute background video is randomly selected from the batch, and merged with the audio iteratively.
+
+![alt text](youtube.gif)
 
 ### Step #7: Upload videos to YouTube
 There is now 2 main components to upload the videos: 
-The Google Sheet: Used to copy and paste video title into YouTube UI
-Directory of final videos.
+1. The Google Sheet: Used to copy and paste video title into YouTube UI
+2. Directory of final videos.
 
 
 ## Sources
