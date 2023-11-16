@@ -1,6 +1,6 @@
 # Jellyfish GPT 
 
-![alt text](youtube.gif)
+![alt text](images/youtube.gif)
 
 [[Checkout the YouTube Channel!]](https://www.youtube.com/watch?v=-zABWWJjvCc)
 
@@ -28,7 +28,7 @@ Factual information from the web, about jellyfish, used for the agents knowledge
 ## Implementation
 
 
-<img src="script_diagram.png" alt="alt text" width="700"/>
+<img src="images/script_diagram.png" alt="alt text" width="700"/>
 
 ### Step #1: Add data to knowledge base
 In order to create content that is based on facts and avoid LLM hallucinations, factual scientific information from the web is utilized to create a knowledge base for the agent.  This knowledge base is stored in a text file. Below is a snippet from the knowledge base:
