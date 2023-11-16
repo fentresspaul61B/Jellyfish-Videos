@@ -3,18 +3,14 @@
 ![alt text](youtube.gif)
 
 [[Checkout the YouTube Channel!]](https://www.youtube.com/watch?v=-zABWWJjvCc)
---- 
+
 ## AI Generated Educational Video Content About Jellyfish 
 This project uses FFPMEG, OpenAI Assistants, and OpenAI TTS to create short educational videos about jellyfish. The purpose of purpose of this project is to explore how to quickly generate batches of high quality and factual content using an OpenAI assistant with a knowledge base, which can be used for educational purposes. 
-
---- 
 
 ## Table of Contents
 - [Files](#files)
 - [Implementation](#implementation)
 - [Sources](#sources)
---- 
-
 
 ## Files 
 
@@ -29,10 +25,47 @@ Factual information from the web, about jellyfish, used for the agents knowledge
 
 
 
-## Example
-This is how the video scripts are created:
+## Implementation
 
-### Add Data to Knowledge base. 
+
+### Step #1: Add data to knowledge base. 
+In order to create content that is based on facts and avoid LLM hallucinations, factual scientific information from the web is utilized to create a knowledge base for the agent.  This knowledge base is stored in a text file. Below is a snippet from the knowledge base:
+
+> "Jellies play a vital role in ocean ecosystems. Not only do they eat plankton, but some are food for large animals like sea turtles. In Monterey Bay, for example, the enormous Pacific leatherback sea turtle travels across the Pacific Ocean, all the way from Indonesia, to feed specifically on sea nettles.
+A recent study led by the Aquarium showed that jellies are also threatened by microplastics, and that they serve as an entry point for microplastics in the open ocean food chain. This shows how important jellies are as a food source for many animals."
+
+### Step #2: Find a long and publicly available youtube video. 
+Find a long video that is available to use freely. This longer video will serve as a background for the short videos we are creating. 
+
+### Step #3: Slice long videos into shorter videos. 
+FFMPEG was used to slice a longer video into shorter ones, as well as decrease or mute the volume of the original video. 
+
+### Step #4: Generate video scripts, titles and metadata. 
+Next step is to create YouTube scripts and titles using our OpenAI agent. The script is later converted to audio, to create the narration for the video. OpenAI API assistants were used to generate the text, and well as the Google Sheets API to store the metadata. The reason I chose to use Google Sheets, and not a database, is because it is easier to copy data from a google sheet into the YouTube UI. (I would automate the uploading of the YouTube videos; however, YouTube will block videos uploaded via the API). 
+
+#### Metadata:
+| Column Name         | Description          |
+|---------------------|----------------------|
+| VIDEO_SCRIPT_PROMPT | The prompt used to generate the video script        |
+| VIDEO_SCRIPT        | The actual script of the video        |
+| NUM_CHARS_SCRIPT    | Number of text characters in script        |
+| NUM_WORDS_SCRIPT    | Number of words in script        |
+| VIDEO_TITLE_PROMPT  | Prompt to generate title       |
+| VIDEO_TITLE         | The generated title       |
+| NUM_CHARS_TITLE     | Number of text characters in title        |
+| NUM_WORDS_TITLE     | Number of words in title        |
+| INFERENCE_ID        | A unique ID used to keep track of text, video, and audio files used for the same video       |
+| GPT_ASSISTANT_ID    | ID to pull jellyfish assistant       |
+| DATE_TIME           | Timestamp       |
+| COST_OF_INFERENCE   | Calculated total cost of inference in dollars, including text and audio generation       |
+| GPT_BASE_MODEL      | Model used       |
+| INFERENCE_TIME      | Time for text generation start to finish        |
+
+
+Functions: 
+
+
+
 Ask the jellyfish expert:
 > Can you briefly explain the reproduction of jellyfish? If information is not contained in the document, skip the question, and explain something you do know. Do not say what information is or is not contained in the document provided. Keep your response concise, and less than 100 words.
 
