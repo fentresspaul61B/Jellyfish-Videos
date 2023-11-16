@@ -83,7 +83,7 @@ Once the video scripts are complete in text format, the audio is generated from 
 ### Step #6: Merge and edit short videos with audio using FFMPEG 
 Short videos are merged, trimmed, cropped, and faded using FFMPEG. A one minute background video is randomly selected from the batch, and merged with the audio iteratively.
 
-![alt text](youtube.gif)
+![alt text](images/generated_videos_in_dir.png)
 
 ### Step #7: Upload videos to YouTube
 There is now 2 main components to upload the videos: 
