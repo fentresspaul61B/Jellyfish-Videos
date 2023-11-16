@@ -2,10 +2,11 @@
 
 ![alt text](images/youtube.gif)
 
-[[Checkout the YouTube Channel!]](https://www.youtube.com/watch?v=-zABWWJjvCc)
-
 ## AI Generated Educational Video Content About Jellyfish 
 This project uses FFPMEG, OpenAI Assistants, and OpenAI TTS to create short educational videos about jellyfish. The purpose of purpose of this project is to explore how to quickly generate batches of high quality and factual content using an OpenAI assistant with a knowledge base, which can be used for educational purposes. 
+
+I plan on creating more YouTube channels and content for educational purposes, as well as to raise awareness and even donations for causes that I care about. 
+[[Checkout the YouTube Channel!]](https://www.youtube.com/watch?v=-zABWWJjvCc)
 
 ## Table of Contents
 - [Files](#files)
@@ -63,6 +64,8 @@ Next step is to create YouTube scripts and titles using our OpenAI agent. The sc
 | COST_OF_INFERENCE   | Calculated total cost of inference in dollars, including text and audio generation       |
 | GPT_BASE_MODEL      | Model used       |
 | INFERENCE_TIME      | Time for text generation start to finish        |
+
+Metadata about the inference turned out to be useful when experimenting with prompts, which is something I learned from my job. 
 
 #### Example of prompts
 Script Prompt:
