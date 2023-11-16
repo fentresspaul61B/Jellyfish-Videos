@@ -74,6 +74,7 @@ CREATE_TITLE_PROMPT = configs["CREATE_TITLE_PROMPT"]
 PRICE_PER_TOKEN     = configs["PRICE_PER_TOKEN"]
 SPREADSHEET_ID      = configs["SPREADSHEET_ID"]
 GOOGLE_SHEET_NAME   = configs["GOOGLE_SHEET_NAME"]
+DESKTOP_PATH        = configs["DESKTOP_PATH"]
 
 # Unpacking secrets.
 OPENAI_API_KEY   = secrets["OPENAI_API_KEY"]
@@ -92,10 +93,22 @@ ASSISTANT = OPEN_AI_CLIENT.beta.assistants.retrieve(
 THREAD = OPEN_AI_CLIENT.beta.threads.create()
 
 
+def initialize_empty_directories(output_dir=None):
+    
+    if not output_dir:
+
+        os.mkdir(f"{DESKTOP_PATH}/{GOOGLE_SHEET_NAME}")
+        os.mkdir(f"{DESKTOP_PATH}/{GOOGLE_SHEET_NAME}/one_minute_videos")
+        os.mkdir(f"{DESKTOP_PATH}/{GOOGLE_SHEET_NAME}/raw_audio")
+        os.mkdir(f"{DESKTOP_PATH}/{GOOGLE_SHEET_NAME}/merged_videos")
+        os.mkdir(f"{DESKTOP_PATH}/{GOOGLE_SHEET_NAME}/final_videos")
+        
+
+
 def segment_video(
         input_video_path: str, 
         output_dir:       str, 
-        segment_duration: int =60, 
+        segment_duration: int = 60, 
         volume:           int = 1
     ):
     """
@@ -427,7 +440,7 @@ def generate_raw_audio_files(
         # Saving data to a file.
         file_path = f"{output_dir}/{inference_id}.mp3"
         tts_response.stream_to_file(file_path)
-
+        print(f"{file_path} complete.", index + 1)
     return file_path
 
 
@@ -509,7 +522,7 @@ def merge_audio_video(
 def fade_and_slice_video(
         input_video_path:  str, 
         output_video_path: str, 
-        audio_length:      str,
+        audio_length:      int,
         fade_duration:     int = 2
     ):
     """
@@ -528,6 +541,23 @@ def fade_and_slice_video(
         (
             f"[0:v]trim=duration={duration},"
             f"fade=t=out:st={audio_length}:d={fade_duration}:color=black[v]"
+            f"crop=405:720[v]"
+        ), 
+        '-map', '[v]',
+        '-map', '0:a',
+        '-c:a', 'copy',
+        '-preset', 'fast',
+        output_video_path
+    ]
+    
+    command = [
+        'ffmpeg',
+        '-i', input_video_path,
+        '-filter_complex',
+        (
+            f"[0:v]trim=duration={duration},"
+            f"fade=t=out:st={audio_length}:d={fade_duration}:color=black,"
+            f"crop=405:720[v]"
         ), 
         '-map', '[v]',
         '-map', '0:a',
@@ -637,10 +667,11 @@ def main():
    
     # 6. Create audio files from scripts. 
     # audio_dir = generate_raw_audio_files(f"{GOOGLE_SHEET_NAME}.csv") 
-   
+    
+    short_videos = "/Users/paulfentress/Desktop/one_minute_videos" 
     # 7. Generate YouTube videos from short videos and audio.   
-    # generate_video_data(short_vidoes, audio_dir)
-
+    generate_video_data(short_videos, "jelly_fish_audio")
+    
 
 if __name__ == "__main__":
     main()

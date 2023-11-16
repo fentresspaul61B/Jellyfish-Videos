@@ -48,5 +48,10 @@
     },
   "SPREADSHEET_ID": "1Tsb0AVf9QW7hABQCB7LTs6VslvE4AmEmt9p9gwC3ZpE",
   "GOOGLE_SHEET_NAME": "Jellyfish",
-  "GCP_SCOPES": ["https://www.googleapis.com/auth/spreadsheets.readonly"] 
+  "GCP_SCOPES": ["https://www.googleapis.com/auth/spreadsheets.readonly"],
+  "DESKTOP_PATH": "/Users/paulfentress/Desktop/",
+  "YOUTUBE_SCRIPTS_CSV_PATH": "PATH",
+  "SEGMENTED_VIDEOS_PATH": "PATH",
+  "AUDIO_PATH": "PATH"
 }
+
