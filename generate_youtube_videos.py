@@ -94,15 +94,26 @@ THREAD = OPEN_AI_CLIENT.beta.threads.create()
 
 
 def initialize_empty_directories(output_dir=None):
-    
-    if not output_dir:
+    """
+    Multiple directories are created for the pipeline, because the files 
+    change from audio, to video, and cannot have these transformations 
+    applied in place. 
+    """    
 
-        os.mkdir(f"{DESKTOP_PATH}/{GOOGLE_SHEET_NAME}")
-        os.mkdir(f"{DESKTOP_PATH}/{GOOGLE_SHEET_NAME}/one_minute_videos")
-        os.mkdir(f"{DESKTOP_PATH}/{GOOGLE_SHEET_NAME}/raw_audio")
-        os.mkdir(f"{DESKTOP_PATH}/{GOOGLE_SHEET_NAME}/merged_videos")
-        os.mkdir(f"{DESKTOP_PATH}/{GOOGLE_SHEET_NAME}/final_videos")
-        
+    if not output_dir:     
+        # If no path passed, then used desktop.
+        output_dir = f"{DESKTOP_PATH}/{GOOGLE_SHEET_NAME}" 
+    
+    # Making root dir.
+    os.mkdir(output_dir)
+
+    # Creating sub dirs. 
+    os.mkdir(f"{output_dir}/one_minute_videos")
+    os.mkdir(f"{output_dir}/raw_audio")
+    os.mkdir(f"{output_dir}/merged_videos")
+    os.mkdir(f"{output_dir}/final_videos")
+
+    return output_dir
 
 
 def segment_video(
