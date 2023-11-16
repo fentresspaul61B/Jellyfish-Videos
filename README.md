@@ -11,6 +11,7 @@ This project uses FFPMEG, OpenAI Assistants, and OpenAI TTS to create short educ
 - [Files](#files)
 - [Implementation](#implementation)  
 - [Sources](#sources)
+- [Motivation](#motivation)
 
 ## Files 
 
@@ -100,6 +101,12 @@ These are the sources used to create the knowledge base, used to ensure factual 
 - https://www.mbari.org/news/how-comb-jellies-adapted-to-life-in-the-deep-sea/
 - https://www.mbari.org/news/ctenophores-the-story-of-evolution-in-the-oceans/
 - https://ocean.si.edu/ocean-life/invertebrates/jellyfish-and-comb-jellies#section_16508
+
+## Sources
+This project is dedicated to sharing interesting facts about jellyfish for entertainment and educational purposes, as well as hopefuly bring in donations to protect wild animals.
+
+If you love wild animals like jellyfish too, please donate to the wild animal initiative, which seeks to reduce harm caused to animals in the wild. 
+https://www.wildanimalinitiative.org/donate 
 
 
 
