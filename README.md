@@ -1,6 +1,6 @@
 # Jellyfish GPT 
 
-![alt text](images/youtube.gif)
+![alt text](images/jellyfish.gif)
 
 ## AI Generated Educational Video Content About Jellyfish 
 This project uses FFPMEG, OpenAI Assistants, and OpenAI TTS to create short educational videos about jellyfish. The purpose of purpose of this project is to explore how to quickly generate batches of high quality and factual content using an OpenAI assistant with a knowledge base, which can be used for educational purposes. 
@@ -93,6 +93,8 @@ Short videos are merged, trimmed, cropped, and faded using FFMPEG. A one minute 
 There is now 2 main components to upload the videos: 
 1. The Google Sheet: Used to copy and paste video title into YouTube UI
 2. Directory of final videos.
+
+![alt text](images/youtube.gif)
 
 
 ## Sources
