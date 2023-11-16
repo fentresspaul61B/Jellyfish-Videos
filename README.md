@@ -1,4 +1,4 @@
-# Jellyfish GPT 
+# 🪼 Jellyfish GPT 
 
 ![alt text](images/jellyfish.gif)
 
