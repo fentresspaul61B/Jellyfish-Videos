@@ -26,7 +26,7 @@ Factual information from the web, about jellyfish, used for the agents knowledge
 
 
 ## Implementation
-
+![alt text](script_diagram.png)
 
 ### Step #1: Add data to knowledge base. 
 In order to create content that is based on facts and avoid LLM hallucinations, factual scientific information from the web is utilized to create a knowledge base for the agent.  This knowledge base is stored in a text file. Below is a snippet from the knowledge base:
@@ -61,21 +61,30 @@ Next step is to create YouTube scripts and titles using our OpenAI agent. The sc
 | GPT_BASE_MODEL      | Model used       |
 | INFERENCE_TIME      | Time for text generation start to finish        |
 
+#### Example of prompts:
+Script Prompt:
+> Can you briefly explain the reproduction of jellyfish? If information is not contained in the document, skip the question, and explain something you do know. Do not say what information is or is not contained in the document provided. Keep your response concise, and less than 150 words.
 
-Functions: 
-
-
-
-Ask the jellyfish expert:
-> Can you briefly explain the reproduction of jellyfish? If information is not contained in the document, skip the question, and explain something you do know. Do not say what information is or is not contained in the document provided. Keep your response concise, and less than 100 words.
-
-Expert response:
+Response:
 > "Jellyfish reproduction is fascinating! They have a two-stage life cycle: the polyp stage and the medusa stage. In the polyp stage, they can reproduce asexually by budding, which is like cloning. However, when they are mature jellyfish, or medusae, they reproduce sexually by releasing eggs and sperm into the water to create larval jellyfish called planulae. These planulae then settle on a surface and grow into new polyps, starting the cycle all over again. Nature's pretty amazing, right?"
 
-Video Title: 
+Title Prompt: 
+>"System: You are a helpful assistant who creates youtube video titles. Only return the one YouTube title, and nothing else, based on the video transcript. Keep the length of the title less than 80 characters.
+User: {Transcript}
+
+Response (After adding emojis and hashtags):
 > 🪼 "Understanding the Two-Stage Reproduction Cycle of Jellyfish" #shorts #jellyfish
 
-Video result:
+### Step #5: Generate audio data
+Once the video scripts are complete in text format, the audio is generated from the text, and saved to a directory.
+
+### Step #6: Merge and edit short videos with audio using FFMPEG 
+Short videos are merged, trimmed, cropped, and faded using FFMPEG. A one minute background video is randomly selected from the batch, and merged with the audio iteratively 
+
+### Step #7: Upload videos to YouTube
+There is now 2 main components to upload the videos: 
+The Google Sheet: Used to copy and paste video title into YouTube UI
+Directory of final videos.
 
 
 ## Sources
