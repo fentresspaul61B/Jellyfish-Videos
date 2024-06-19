@@ -15,6 +15,9 @@ video transcripts based on a different questions and topics.
 # Icecream used for better ic statements and debugging.
 from icecream import ic
 
+# Used for creating subtitles for the video.
+from faster_whisper import WhisperModel
+
 # Pandas used to create video script csv and meta data. 
 import pandas as pd
 
@@ -60,6 +63,9 @@ import json
 # subprocess used to call ffmpeg using python. 
 import subprocess
 
+# Used to format seconds data for subtitles.
+import math
+
 # Configs file can be edited to adjust prompts, voices and more. 
 with open('configs.json', 'r') as file:
     configs = json.load(file)
@@ -78,6 +84,15 @@ PRICE_PER_TOKEN     = configs["PRICE_PER_TOKEN"]
 SPREADSHEET_ID      = configs["SPREADSHEET_ID"]
 GOOGLE_SHEET_NAME   = configs["GOOGLE_SHEET_NAME"]
 DESKTOP_PATH        = configs["DESKTOP_PATH"]
+
+# Folder names
+RAW_AUDIO = "RAW_AUDIO"
+ONE_MINUTE_VIDEOS = "ONE_MINUTE_VIDEOS"
+VIDEOS_MERGED_WITH_AUDIO = "VIDEOS_MERGED_WITH_AUDIO"
+FADED_AND_SLICED_VIDEOS = "FADED_AND_SLICED_VIDEOS"
+VIDEOS_WITH_SUBTITLES = "VIDEOS_WITH_SUBTITLES"
+HISTORY = "HISTORY"
+SUBTITLES = "SUBTITLES"
 
 # Unpacking secrets.
 OPENAI_API_KEY   = secrets["OPENAI_API_KEY"]
@@ -111,11 +126,13 @@ def initialize_empty_directories(output_dir=None):
     os.mkdir(output_dir)
 
     # Creating sub dirs. 
-    os.mkdir(os.path.join(output_dir, "one_minute_videos"))
-    os.mkdir(os.path.join(output_dir, "raw_audio"))
-    os.mkdir(os.path.join(output_dir, "merged_videos"))
-    os.mkdir(os.path.join(output_dir, "final_videos"))
-    os.mkdir(os.path.join(output_dir, "history"))
+    os.mkdir(os.path.join(output_dir, RAW_AUDIO))
+    os.mkdir(os.path.join(output_dir, ONE_MINUTE_VIDEOS))
+    os.mkdir(os.path.join(output_dir, VIDEOS_MERGED_WITH_AUDIO))
+    os.mkdir(os.path.join(output_dir, FADED_AND_SLICED_VIDEOS))
+    os.mkdir(os.path.join(output_dir, VIDEOS_WITH_SUBTITLES))
+    os.mkdir(os.path.join(output_dir, HISTORY))
+    os.mkdir(os.path.join(output_dir, SUBTITLES))
 
     return output_dir
 
@@ -512,7 +529,7 @@ def get_audio_duration(audio_path: str):
 def merge_audio_video(
         video_path:  str, 
         audio_path:  str, 
-        output_path: str = 'test_vid.mp4'
+        merged_video_path: str
     ):
     """
     Adds audio to a video. Used to add the voice to the silent or 
@@ -520,7 +537,7 @@ def merge_audio_video(
     """
     
     # Ensure the output directory exists.
-    output_dir = os.path.dirname(output_path)
+    output_dir = os.path.dirname(merged_video_path)
     if output_dir and not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -534,7 +551,7 @@ def merge_audio_video(
         '-c:v', 'copy',    # copy the video codec
         '-c:a', 'aac',     # encode the audio in AAC format
         '-strict', 'experimental',
-        output_path        # path for the output file
+        merged_video_path        # path for the output file
     ]
 
     # Run the FFmpeg command
@@ -544,12 +561,13 @@ def merge_audio_video(
         stderr=subprocess.PIPE, 
         text=True
     )
+    ic(result)
 
     # Check if FFmpeg command was successful.
     if result.returncode != 0:
         raise Exception('FFmpeg failed', result.stderr)
 
-    return output_path
+    return merged_video_path
 
 
 def fade_and_slice_video(
@@ -557,10 +575,15 @@ def fade_and_slice_video(
         output_video_path: str, 
         audio_length:      int,
         fade_duration:     int = 2
-    ):
+    ) -> str:
     """
     Adds a fade to black to the video, and slices the video after fade is 
     complete.
+
+    ARGS:
+
+    RETURNS:
+    output_video_path (str)
     """
     
     # Total video duration is the length of the audio + length of fade. 
@@ -604,24 +627,183 @@ def fade_and_slice_video(
     except Exception as e:
         ic(f'An error occurred: {e}')
         return None
+    return output_video_path
+    
+
+def transcribe(audio) -> tuple:
+    """Converts audio into text segments.
+    Returns (language: str, segments: list)
+    """
+    model = WhisperModel("small")
+    segments, info = model.transcribe(audio)
+    language = info[0]
+    ic("Transcription language", info[0])
+    segments = list(segments)
+    for segment in segments:
+        # ic(segment)
+        ic("[%.2fs -> %.2fs] %s" %
+              (segment.start, segment.end, segment.text))
+    return language, segments
+
+
+def format_time_ass(seconds: float) -> str:
+    """Formats time into subtitle format ASS."""
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    seconds = int(seconds % 60)
+    centiseconds = int((seconds - int(seconds)) * 100)
+    formatted_time = f"{hours:01d}:{minutes:02d}:{seconds:02d}.{centiseconds:02d}"
+    return formatted_time
+
+
+def generate_subtitle_file_ass(language: str, segments, inference_id: str, subtitles_dir: str):
+    """Creates and saves the subtitle file in ASS format.
+    Returns subtitle file path : str
+    """
+    subtitle_file = f"{subtitles_dir}/{inference_id}.{language}.ass"
+    text = ""
+    
+    # ASS Header: TODO: Add this to configs file, the format part.
+    text += "[Script Info]\n"
+    text += "Title: Audio Transcription\n"
+    text += "ScriptType: v4.00+\n"
+    text += "WrapStyle: 0\n"
+    text += "PlayDepth: 0\n"
+    text += "Collisions: Normal\n"
+    text += "ScaledBorderAndShadow: yes\n"
+    text += "Original Script: Your Name\n"
+    text += "\n"
+    text += "[V4+ Styles]\n"
+    text += "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\n"
+    text += "Style: Default,Skia,12,&H003a98fc,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,0,0,2,10,10,10,1\n"
+    text += "\n"
+    text += "[Events]\n"
+    text += "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n"
+    
+    # ASS Events
+    for segment in segments:
+        segment_start = format_time_ass(segment.start)
+        segment_end = format_time_ass(segment.end)
+        text += f"Dialogue: 0,{segment_start},{segment_end},Default,,0,0,0,,{segment.text}\n"
+        
+    with open(subtitle_file, "w", encoding="utf-8") as f:
+        f.write(text)
+        
+    return subtitle_file
+
+
+def burn_subtitles_into_video(video: str, subtitles: str, videos_with_subtitles_dir: str):
+    """
+    Burns subtitles into a video file.
+
+    ARGS:
+    video (str): The path to the input video file.
+    subtitles (str): The path to the ASS subtitle file.
+    videos_with_subtitles_dir (str): The directory where the output video will be saved.
+
+    RETURNS:
+    str: The path to the output video file with subtitles.
+    """
+    ic("HERE ATTEMPTING TO BURN SUBTITLES INTO VIDEO")
+    # Ensure the output directory exists
+    if not os.path.exists(videos_with_subtitles_dir):
+        os.makedirs(videos_with_subtitles_dir)
+
+    # Construct the output file path
+    output_video_path = os.path.join(videos_with_subtitles_dir, os.path.basename(video))
+
+    # Construct the ffmpeg command to burn subtitles into the video
+    command = [
+        'ffmpeg',
+        '-i', video,
+        '-vf', f"ass='{subtitles}'",
+        '-c:a', 'copy', 
+        output_video_path
+    ]
+
+    # Execute the command
+    subprocess.run(command, check=True)
+
+    return output_video_path
+
+
+def add_subtitles_to_video(
+        audio: str, 
+        video: str, 
+        inference_id: str,
+        subtitles_dir: str,
+        videos_with_subtitles_dir: str
+    ):
+    """Adds subtitles to a video including doing the transcription, 
+    creating a subtitle file in ASS format, then burning the subtitles
+    into the video.
+    
+    ARGS:
+    audio (str): The path to the raw audio file.
+    video (str): The path to the merged and sliced video.
+    inference_id (str): The id that connects data in pipeline.
+    output_dir (str): The path to the videos with subtitles dir.
+    
+    RETURNS:
+    video_with_subtitles (str): The path to the video with subtitles.
+    """
+
+    language, segments = transcribe(audio)
+
+    subtitles = generate_subtitle_file_ass(
+        language=language, 
+        inference_id=inference_id,
+        segments=segments, 
+        subtitles_dir=subtitles_dir,
+    )
+    
+    video_with_subtitles = burn_subtitles_into_video(
+        video=video, 
+        subtitles=subtitles, 
+        videos_with_subtitles_dir=videos_with_subtitles_dir
+    )
+    
+    return video_with_subtitles
 
 
 def process_raw_video_and_audio(
         raw_video:    str, 
         raw_audio:    str, 
         merged_video: str,
-        final_video:  str,
+        fade_and_sliced_videos:  str,
+        subtitles_dir: str,
+        videos_with_subtitles_dir: str,
         inference_id: str
     ):
     """
-    First adds audio to video, then fades and slices the video.
-    """
+    DESCRIPTION:
+    Adds all FFMPEG processing to a video. Adds data to different 
+    folders along the way.
+    1. Gets duration of audio.
+    2. Merge audio with video.
+    3. Fade and slice the video.
+    4. Add subtitles to the video.
     
-    # Compute audio length. 
+    ARGS:
+    - raw_video (str): Path to a single raw shortened video file.
+    - raw_audio (str): Path to a single raw audio file.
+    - merged_video (str): Path to save video merged with audio.
+    - fade_and_sliced_videos (str): Path to the save the video after 
+    fading and slicing is applied.
+    - subtitles_dir (str): Path to dir, to store .ASS subtitle files.
+    - videos_with_subtitles (str): Path to save the video with 
+    subtitles.
+    
+    RETURNS:
+    (str) "Done"
+    """
+    # Compute audio length. Used for meta data.
+    ic("Compute audio length. Used for meta data.")
     audio_duration = get_audio_duration(raw_audio)
     ic(audio_duration)
 
     # Merge audio with video.
+    ic("Merge audio with video.")
     merged_video_path = merge_audio_video(
         raw_video, 
         raw_audio, 
@@ -630,12 +812,23 @@ def process_raw_video_and_audio(
 
     ic(merged_video_path)
 
-    # Fade and slices the video.
-    final_video_path = fade_and_slice_video(
-        merged_video, 
-        final_video, 
+    # Fade and slice the video.
+    fade_and_sliced_video = fade_and_slice_video(
+        merged_video_path, 
+        fade_and_sliced_videos, 
         audio_duration
     )
+    ic(fade_and_sliced_video)
+
+    # Add subtitles to the video.
+    video_with_subtitles = add_subtitles_to_video(
+        audio=raw_audio,
+        video=fade_and_sliced_video,
+        inference_id=inference_id,
+        subtitles_dir=subtitles_dir,
+        videos_with_subtitles_dir=videos_with_subtitles_dir
+    )
+    ic(video_with_subtitles)
 
     return "Done"
 
@@ -644,10 +837,28 @@ def generate_video_data(
         video_data_dir: str, 
         audio_data_dir: str, 
         merged_videos_dir: str, 
-        final_videos_dir: str
+        fade_and_sliced_videos: str,
+        subtitles_dir: str,
+        videos_with_subtitles_dir: str
     ) -> str:
     """
-    Creates the entire batch of YouTube shorts videos
+    Creates the entire batch of YouTube shorts videos. Iterates over 
+    all data and applies all ffmpeg processing to them.
+
+    ARGS:
+    - video_data_dir (str): Path to dir of all short raw videos.
+    - audio_data_dir (str): Path to dir of all raw audio files.
+    - merged_videos_dir (str): Path to dir of all videos merged with 
+    audio.
+    - fade_and_sliced_videos (str): Path to dir of all videos that have
+    fade and sliced applied.
+    - videos_with_subtitles: Path to dir to store all videos with 
+    subtitles added. This is currently the last processing applied and 
+    therefore the final folder, and therefore where the completed 
+    videos are stored.
+
+    RETURNS:
+    (str) "Done"
     """
 
     # All the one minute videos.
@@ -664,16 +875,18 @@ def generate_video_data(
         raw_audio = os.path.join(audio_data_dir, f"{inference_id}.mp3")
         raw_video = os.path.join(video_data_dir, random.choice(video_files))
         merged_video = os.path.join(merged_videos_dir, f"{inference_id}.mp4")
-        final_video = os.path.join(final_videos_dir, f"{inference_id}.mp4")
+        fade_and_sliced_video = os.path.join(fade_and_sliced_videos, f"{inference_id}.mp4")
 
         # Generating and saving the YouTube video.
         try:
             process_raw_video_and_audio(
-                raw_video, 
-                raw_audio, 
-                merged_video, 
-                final_video,
-                inference_id
+                raw_video=raw_video, 
+                raw_audio=raw_audio, 
+                merged_video=merged_video, 
+                fade_and_sliced_videos=fade_and_sliced_video,
+                subtitles_dir=subtitles_dir,
+                videos_with_subtitles_dir=videos_with_subtitles_dir,
+                inference_id=inference_id
             )
         
         except Exception as e:
@@ -687,61 +900,59 @@ def clean_up():
     pass
 
 
-def main():
+def pipeline():
     """Run the entire script."""
 
-    # 0. Creating directories for script.
-    ic("🪼 0. Creating directories for script.")
-    # The long video path will be made into a parameter.
-    long_video_path = "/Users/paulfentress/Desktop/long_jellyfish_vid.mp4"
-    output_dir = initialize_empty_directories()
-    ic(long_video_path)
-    ic(output_dir)
+    # # 0. Creating directories for script.
+    # ic("🪼 0. Creating directories for script.")
+    # # The long video path will be made into a parameter.
+    # long_video_path = "/Users/paulfentress/Desktop/long_jellyfish_vid.mp4"
+    # output_dir = initialize_empty_directories()
+    # ic(long_video_path)
+    # ic(output_dir)
     
-    # 1. Cut long video to short videos.
-    ic("🪼 1. Cut long video to short videos.")
-    video_data_dir = f"{output_dir}/one_minute_videos/" 
-    short_videos = segment_video(long_video_path, video_data_dir)
-    ic(short_videos)
+    # # 1. Cut long video to short videos.
+    # ic("🪼 1. Cut long video to short videos.")
+    # video_data_dir = f"{output_dir}/{ONE_MINUTE_VIDEOS}/" 
+    # short_videos = segment_video(long_video_path, video_data_dir)
+    # ic(short_videos)
 
-    # 2. Generate 10 prompts.
-    ic("🪼 2. Generate 10 prompts.")
-    video_script_prompts = create_video_script_prompts(num_prompts=2)
-    ic(video_script_prompts)
+    # # 2. Generate 10 prompts.
+    # ic("🪼 2. Generate 10 prompts.")
+    # video_script_prompts = create_video_script_prompts(num_prompts=2)
+    # ic(video_script_prompts)
    
-    # 3. Generate the scripts by calling API.
-    ic("🪼 3. Generate the scripts by calling API.")
-    data = generate_youtube_shorts_scripts(video_script_prompts)
-    ic(data)
+    # # 3. Generate the scripts by calling API.
+    # ic("🪼 3. Generate the scripts by calling API.")
+    # data = generate_youtube_shorts_scripts(video_script_prompts)
+    # ic(data)
    
-    # 4. Save data locally.
-    ic("🪼 4. Save data locally.")
-    csv_path = f"{output_dir}/history/{GOOGLE_SHEET_NAME}.csv"
-    data.to_csv(csv_path)
-    ic(csv_path)
+    # # 4. Save data locally.
+    # ic("🪼 4. Save data locally.")
+    # csv_path = f"{output_dir}/{HISTORY}/{GOOGLE_SHEET_NAME}.csv"
+    # data.to_csv(csv_path)
+    # ic(csv_path)
 
-    # 5. Upload script data to Google Sheet.
-    ic("🪼 5. Upload script data to Google Sheet.")
-    ic("SKIPPING")
-    # upload_data_to_google_sheets(data)
+    # # 5. Upload script data to Google Sheet.
+    # ic("🪼 5. Upload script data to Google Sheet.")
+    # ic("SKIPPING")
+    # # upload_data_to_google_sheets(data)
    
-    # 6. Create audio files from scripts.
-    ic("🪼 6. Create audio files from scripts.") 
-    audio_path = f"{output_dir}/raw_audio"
-    audio_data_dir = generate_raw_audio_files(csv_path, output_dir=audio_path)
-    ic(audio_data_dir)
+    # # 6. Create audio files from scripts.
+    # ic("🪼 6. Create audio files from scripts.") 
+    # audio_path = f"{output_dir}/{RAW_AUDIO}"
+    # audio_data_dir = generate_raw_audio_files(csv_path, output_dir=audio_path)
+    # ic(audio_data_dir)
 
     # 7. Setting up paths for data.
     ic("🪼 7. Setting up paths for data.")
     output_dir = "/Users/paulfentress/Desktop/Jellyfish"
-    video_data_dir = f"{output_dir}/one_minute_videos/" 
-
-    merged_videos_dir = f"{output_dir}/merged_videos/" 
-    final_videos_dir = f"{output_dir}/final_videos/" 
-    audio_data_dir = f"{output_dir}/raw_audio/" 
-    ic(video_data_dir)
-    ic(merged_videos_dir)
-    ic(final_videos_dir)
+    video_data_dir = f"{output_dir}/{ONE_MINUTE_VIDEOS}/" 
+    merged_videos_dir = f"{output_dir}/{VIDEOS_MERGED_WITH_AUDIO}/" 
+    fade_and_slice_videos = f"{output_dir}/{FADED_AND_SLICED_VIDEOS}/" 
+    audio_data_dir = f"{output_dir}/{RAW_AUDIO}/" 
+    videos_with_subtitles_dir = f"{output_dir}/{VIDEOS_WITH_SUBTITLES}/" 
+    subtitles_dir = f"{output_dir}/{SUBTITLES}/"
 
     # 8. Generate YouTube videos from short videos and audio. 
     ic("🪼 8. Generate YouTube videos from short videos and audio. ")
@@ -749,12 +960,39 @@ def main():
         video_data_dir=video_data_dir, 
         audio_data_dir=audio_data_dir, 
         merged_videos_dir=merged_videos_dir, 
-        final_videos_dir=final_videos_dir
+        fade_and_sliced_videos=fade_and_slice_videos,
+        subtitles_dir=subtitles_dir,
+        videos_with_subtitles_dir=videos_with_subtitles_dir
     )
     ic(job_status)
 
     # 9. Cleaning up data.
     clean_up()
+
+
+def main():
+    pipeline()
+    # extracted_audio = "/Users/paulfentress/Desktop/Jellyfish/raw_audio/2f5ed3ac-0cf6-441e-a911-de12de506892.mp3"
+    # language, segments = transcribe(audio=extracted_audio)
+    # subtitle_file = generate_subtitle_file_ass(
+    # language=language,
+    # segments=segments,
+    # audio_file=extracted_audio
+    # )
+    # ic(subtitle_file)
+    # video = "/Users/paulfentress/Desktop/Jellyfish/final_videos/2f5ed3ac-0cf6-441e-a911-de12de506892.mp4"
+    # subtitles = "/Users/paulfentress/Desktop/Jellyfish/raw_audio/2f5ed3ac-0cf6-441e-a911-de12de506892.en.ass"
+    # output_dir = "/Users/paulfentress/Desktop/Jellyfish/videos_with_subtitles"
+    # burn_subtitles_into_video(video=video, subtitles=subtitles, output_dir=output_dir)
+    pass
+
+
+"""
+ffmpeg -i '/Users/paulfentress/Desktop/Jellyfish/final_videos/2f5ed3ac-0cf6-441e-a911-de12de506892.mp4' -vf "ass='/Users/paulfentress/Desktop/Jellyfish/raw_audio/2f5ed3ac-0cf6-441e-a911-de12de506892.en.ass'" -c:a copy '/Users/paulfentress/Desktop/Jellyfish/final_videos/output_video_with_styled_subtitles.mp4'
+
+ffmpeg -i '/Users/paulfentress/Desktop/Jellyfish/final_videos/2f5ed3ac-0cf6-441e-a911-de12de506892.mp4' -i '/Users/paulfentress/Desktop/Jellyfish/raw_audio/2f5ed3ac-0cf6-441e-a911-de12de506892.en.srt' -c:v copy -c:a copy -c:s mov_text '/Users/paulfentress/Desktop/Jellyfish/final_videos/video_with_subtitles.mp4'
+
+"""
     
 
 if __name__ == "__main__":
