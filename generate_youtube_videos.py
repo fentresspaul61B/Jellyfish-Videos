@@ -12,6 +12,9 @@ The assistant uses facts added to its knowledge base to create
 video transcripts based on a different questions and topics. 
 
 """
+# Icecream used for better ic statements and debugging.
+from icecream import ic
+
 # Pandas used to create video script csv and meta data. 
 import pandas as pd
 
@@ -112,6 +115,7 @@ def initialize_empty_directories(output_dir=None):
     os.mkdir(os.path.join(output_dir, "raw_audio"))
     os.mkdir(os.path.join(output_dir, "merged_videos"))
     os.mkdir(os.path.join(output_dir, "final_videos"))
+    os.mkdir(os.path.join(output_dir, "history"))
 
     return output_dir
 
@@ -153,7 +157,8 @@ def segment_video(
         ])
     else: 
         # Copy the audio stream.
-        command.append('-c:a', 'copy')  
+        command.append('-c:a')  
+        command.append('copy')
 
     # Creating the file names. These file names do not need a special ID 
     # because they are randomly selected to create videos.
@@ -165,23 +170,37 @@ def segment_video(
     return output_dir
 
 
-def create_video_script_prompts():
+def create_video_script_prompts(num_prompts: int = 10) -> list:
     """
+    Returns: List
     Creates combinations of questions and topics, which are used 
-    to generate videos.
+    to generate videos. Will by default create 10 videos. Can create
+    up to 100. Have not tested over 100. Currently using 10, because
+    thats okay for YouTube daily upload limit.
     """
     
-    result = []
+    prompts = []
+
+    topics = VIDEO_TOPICS
+    random.shuffle(topics)
+
+    questions = QUESTIONS
+    random.shuffle(questions)
 
     # Looping through each topic and question. 
-    for topic in VIDEO_TOPICS:
-        for question_format in QUESTIONS:
+    for question in questions:
+        for topic in topics:
             # Formatting the question and appending the rules
-            question =\
-                question_format.format(topic=topic) + " " + QUESTION_RULES
-            result.append(question)
+            prompt =\
+                question.format(topic=topic) + " " + QUESTION_RULES
+            
+            prompts.append(prompt)
 
-    return result
+            # Stopping script when enough prompts are generated.
+            if len(prompts) == num_prompts:
+                return prompts 
+
+    return prompts
 
 
 def encoding_getter(encoding_type: str):
@@ -238,7 +257,9 @@ def ask_gpt_jellyfish_expert(question: str):
             thread_id=THREAD.id,
             run_id=run.id
         )
-        print(run.status)
+        # Only check the status once every 5 seconds.
+        ic(run.status)
+        time.sleep(5)
 
     # Extracting messages from thread.
     messages = openai.beta.threads.messages.list(
@@ -280,7 +301,7 @@ def create_video_title(video_transcript: str):
         ]
     )
     
-    print(response)
+    ic(response)
 
     # Extracting text from API response. 
     formatted_response = response.choices[0].message.content 
@@ -350,7 +371,7 @@ def generate_youtube_shorts_scripts(video_script_prompts: list):
        
         inference_time = time.time() - inference_start_time
         
-        # Creating data for Google Sheet. 
+        # Creating data for CSV. 
         row = {
                 "VIDEO_SCRIPT_PROMPT": video_script_prompt,
                 "VIDEO_SCRIPT":        video_script,
@@ -370,7 +391,7 @@ def generate_youtube_shorts_scripts(video_script_prompts: list):
 
         data.append(row)
         
-        print(row) 
+        ic(row) 
 
     df = pd.DataFrame(data)    
     return df
@@ -414,12 +435,12 @@ def upload_data_to_google_sheets(df: pd.DataFrame):
         value_input_option='USER_ENTERED'
     )
     
-    print(response)
+    ic(response)
 
 
 def generate_raw_audio_files(
     script_csv_file: str, 
-    output_dir:      str = "jelly_fish_audio" 
+    output_dir:      str = "raw_audio" 
     ):
     """
     Text to speech generated from the video scripts. Voices are 
@@ -451,8 +472,8 @@ def generate_raw_audio_files(
         # Saving data to a file.
         file_path = f"{output_dir}/{inference_id}.mp3"
         tts_response.stream_to_file(file_path)
-        print(f"{file_path} complete.", index + 1)
-    return file_path
+        ic(f"{file_path} complete.", index + 1)
+    return output_dir
 
 
 def get_audio_duration(audio_path: str):
@@ -468,6 +489,7 @@ def get_audio_duration(audio_path: str):
         '-of', 'default=noprint_wrappers=1:nokey=1',
         audio_path
     ]
+    ic(command)
 
     # Execute the command and capture the output.
     result = subprocess.run(
@@ -580,7 +602,7 @@ def fade_and_slice_video(
     try:
         subprocess.run(command, check=True)
     except Exception as e:
-        print(f'An error occurred: {e}')
+        ic(f'An error occurred: {e}')
         return None
 
 
@@ -597,7 +619,7 @@ def process_raw_video_and_audio(
     
     # Compute audio length. 
     audio_duration = get_audio_duration(raw_audio)
-    print(audio_duration)
+    ic(audio_duration)
 
     # Merge audio with video.
     merged_video_path = merge_audio_video(
@@ -606,7 +628,7 @@ def process_raw_video_and_audio(
         merged_video
     )
 
-    print(merged_video_path)
+    ic(merged_video_path)
 
     # Fade and slices the video.
     final_video_path = fade_and_slice_video(
@@ -618,7 +640,12 @@ def process_raw_video_and_audio(
     return "Done"
 
 
-def generate_video_data(video_data_dir: str, audio_data_dir: str):
+def generate_video_data(
+        video_data_dir: str, 
+        audio_data_dir: str, 
+        merged_videos_dir: str, 
+        final_videos_dir: str
+    ) -> str:
     """
     Creates the entire batch of YouTube shorts videos
     """
@@ -630,17 +657,14 @@ def generate_video_data(video_data_dir: str, audio_data_dir: str):
     # reference the correct title when uploading.
     inference_ids = [x.replace(".mp3", "") for x in os.listdir(audio_data_dir)]
 
-    # Two folders are required for intermediary processing. 
-    os.mkdir("processed_video")
-    os.mkdir("processed_video_final")
-
+ 
     # Iterating over every audio transcript.
 
     for inference_id in inference_ids:
         raw_audio = os.path.join(audio_data_dir, f"{inference_id}.mp3")
         raw_video = os.path.join(video_data_dir, random.choice(video_files))
-        merged_video = os.path.join("processed_video", f"{inference_id}.mp4")
-        final_video = os.path.join("processed_video_final", f"{inference_id}.mp4")
+        merged_video = os.path.join(merged_videos_dir, f"{inference_id}.mp4")
+        final_video = os.path.join(final_videos_dir, f"{inference_id}.mp4")
 
         # Generating and saving the YouTube video.
         try:
@@ -653,36 +677,84 @@ def generate_video_data(video_data_dir: str, audio_data_dir: str):
             )
         
         except Exception as e:
-            print(e)
-            print(f"Failed on ID: {inference_id}")
+            ic(e)
+            ic(f"Failed on ID: {inference_id}")
     
     return "Done"
 
 
+def clean_up():
+    pass
+
+
 def main():
     """Run the entire script."""
-    
-    # 1. Cut long video to short videos. 
-    # short_videos = segment_video(long_video_path, output_dir)
 
-    # 2. Generate the prompts.
-    # video_script_prompts = create_video_script_prompts()
+    # 0. Creating directories for script.
+    ic("🪼 0. Creating directories for script.")
+    # The long video path will be made into a parameter.
+    long_video_path = "/Users/paulfentress/Desktop/long_jellyfish_vid.mp4"
+    output_dir = initialize_empty_directories()
+    ic(long_video_path)
+    ic(output_dir)
+    
+    # 1. Cut long video to short videos.
+    ic("🪼 1. Cut long video to short videos.")
+    video_data_dir = f"{output_dir}/one_minute_videos/" 
+    short_videos = segment_video(long_video_path, video_data_dir)
+    ic(short_videos)
+
+    # 2. Generate 10 prompts.
+    ic("🪼 2. Generate 10 prompts.")
+    video_script_prompts = create_video_script_prompts(num_prompts=2)
+    ic(video_script_prompts)
    
     # 3. Generate the scripts by calling API.
-    # data = generate_youtube_shorts_scripts(video_script_prompts) 
+    ic("🪼 3. Generate the scripts by calling API.")
+    data = generate_youtube_shorts_scripts(video_script_prompts)
+    ic(data)
    
     # 4. Save data locally.
-    # data.to_csv(f"{GOOGLE_SHEET_NAME}.csv")
+    ic("🪼 4. Save data locally.")
+    csv_path = f"{output_dir}/history/{GOOGLE_SHEET_NAME}.csv"
+    data.to_csv(csv_path)
+    ic(csv_path)
 
     # 5. Upload script data to Google Sheet.
+    ic("🪼 5. Upload script data to Google Sheet.")
+    ic("SKIPPING")
     # upload_data_to_google_sheets(data)
    
-    # 6. Create audio files from scripts. 
-    # audio_dir = generate_raw_audio_files(f"{GOOGLE_SHEET_NAME}.csv") 
-    
-    short_videos = "/Users/paulfentress/Desktop/one_minute_videos" 
-    # 7. Generate YouTube videos from short videos and audio.   
-    generate_video_data(short_videos, "jelly_fish_audio")
+    # 6. Create audio files from scripts.
+    ic("🪼 6. Create audio files from scripts.") 
+    audio_path = f"{output_dir}/raw_audio"
+    audio_data_dir = generate_raw_audio_files(csv_path, output_dir=audio_path)
+    ic(audio_data_dir)
+
+    # 7. Setting up paths for data.
+    ic("🪼 7. Setting up paths for data.")
+    output_dir = "/Users/paulfentress/Desktop/Jellyfish"
+    video_data_dir = f"{output_dir}/one_minute_videos/" 
+
+    merged_videos_dir = f"{output_dir}/merged_videos/" 
+    final_videos_dir = f"{output_dir}/final_videos/" 
+    audio_data_dir = f"{output_dir}/raw_audio/" 
+    ic(video_data_dir)
+    ic(merged_videos_dir)
+    ic(final_videos_dir)
+
+    # 8. Generate YouTube videos from short videos and audio. 
+    ic("🪼 8. Generate YouTube videos from short videos and audio. ")
+    job_status = generate_video_data(
+        video_data_dir=video_data_dir, 
+        audio_data_dir=audio_data_dir, 
+        merged_videos_dir=merged_videos_dir, 
+        final_videos_dir=final_videos_dir
+    )
+    ic(job_status)
+
+    # 9. Cleaning up data.
+    clean_up()
     
 
 if __name__ == "__main__":

@@ -1,0 +1,5 @@
+pandas
+gspread
+openai
+oauth2client
+tiktoken

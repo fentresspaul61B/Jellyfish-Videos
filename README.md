@@ -114,5 +114,31 @@ https://www.wildanimalinitiative.org/donate
 
 [More code clean up coming soon]
 
+# TODO
+
+## Steps for Building Project
+1. Clone the project from GitHub.
+2. Create a new venv: ```python -m venv venv```
+3. Start the new venv: ``` source venv/bin/activate```
+4. Upgrade pip: ```pip install --upgrade pip```
+5. Install packages: ```pip install -r requirements.txt```
+6. Create new secrets file: ```touch secrets.json```
+7. Add ```OPENAI_API_KEY```
+8. Add: ```GPT_ASSISTANT_ID```
+9. Download long video of Jellyfish: https://drive.google.com/file/d/
+13Bp01kgVvuJHAyqfseFeBP-MLUk7YOTl/view?usp=drive_link (I will make this script more generalized one day to work for any video?)
+10. Install FFMPEG ```sudo apt-get install ffmpeg``` or ```brew install ffmpeg```
+
+## Turn entire script into bash command
+I want to be able to copy and paste some code into the terminal, and 
+it will do everything from pulling the code from GitHub, create the 
+folders, generate the videos, open all the windows, log into YouTube,
+upload all the videos, close the windows, delete the folders and send
+a report file to me through email?
+
+Think
+
+Run the script in GCP cloud run.
+
 
 

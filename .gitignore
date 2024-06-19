@@ -54,3 +54,7 @@ coverage.xml
 docs/_build/
 
 .DS_Store
+
+# Not saving vscode settings.
+.vscode
+jellyfish_venv
