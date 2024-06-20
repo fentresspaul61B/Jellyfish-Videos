@@ -4,3 +4,4 @@ openai
 oauth2client
 tiktoken
 faster-whisper
+icecream

@@ -83,7 +83,8 @@ CREATE_TITLE_PROMPT = configs["CREATE_TITLE_PROMPT"]
 PRICE_PER_TOKEN     = configs["PRICE_PER_TOKEN"]
 SPREADSHEET_ID      = configs["SPREADSHEET_ID"]
 GOOGLE_SHEET_NAME   = configs["GOOGLE_SHEET_NAME"]
-DESKTOP_PATH        = configs["DESKTOP_PATH"]
+# DESKTOP_PATH        = configs["DESKTOP_PATH"]
+DESKTOP_PATH        = "."
 
 # Folder names
 RAW_AUDIO = "RAW_AUDIO"
@@ -122,8 +123,8 @@ def initialize_empty_directories(output_dir=None):
         # If no path passed, then use desktop.
         output_dir = os.path.join(DESKTOP_PATH, GOOGLE_SHEET_NAME)
     
-    # Making root dir.
-    os.mkdir(output_dir)
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
 
     # Creating sub dirs. 
     os.mkdir(os.path.join(output_dir, RAW_AUDIO))
@@ -675,7 +676,7 @@ def generate_subtitle_file_ass(language: str, segments, inference_id: str, subti
     text += "\n"
     text += "[V4+ Styles]\n"
     text += "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\n"
-    text += "Style: Default,Skia,12,&H003a98fc,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,0,0,2,10,10,10,1\n"
+    text += "Style: Default,Arial,12,&H003a98fc,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,0,0,2,10,10,10,1\n"
     text += "\n"
     text += "[Events]\n"
     text += "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n"
@@ -903,50 +904,50 @@ def clean_up():
 def pipeline():
     """Run the entire script."""
 
-    # # 0. Creating directories for script.
-    # ic("🪼 0. Creating directories for script.")
-    # # The long video path will be made into a parameter.
-    # long_video_path = "/Users/paulfentress/Desktop/long_jellyfish_vid.mp4"
-    # output_dir = initialize_empty_directories()
-    # ic(long_video_path)
-    # ic(output_dir)
+    # 0. Creating directories for script.
+    ic("🪼 0. Creating directories for script.")
+    # The long video path will be made into a parameter.
+    long_video_path = "/Users/paulfentress/Desktop/long_jellyfish_vid.mp4"
+    output_dir = initialize_empty_directories()
+    ic(long_video_path)
+    ic(output_dir)
     
-    # # 1. Cut long video to short videos.
-    # ic("🪼 1. Cut long video to short videos.")
-    # video_data_dir = f"{output_dir}/{ONE_MINUTE_VIDEOS}/" 
-    # short_videos = segment_video(long_video_path, video_data_dir)
-    # ic(short_videos)
+    # 1. Cut long video to short videos.
+    ic("🪼 1. Cut long video to short videos.")
+    video_data_dir = f"{output_dir}/{ONE_MINUTE_VIDEOS}/" 
+    short_videos = segment_video(long_video_path, video_data_dir)
+    ic(short_videos)
 
-    # # 2. Generate 10 prompts.
-    # ic("🪼 2. Generate 10 prompts.")
-    # video_script_prompts = create_video_script_prompts(num_prompts=2)
-    # ic(video_script_prompts)
+    # 2. Generate 10 prompts.
+    ic("🪼 2. Generate 10 prompts.")
+    video_script_prompts = create_video_script_prompts(num_prompts=2)
+    ic(video_script_prompts)
    
-    # # 3. Generate the scripts by calling API.
-    # ic("🪼 3. Generate the scripts by calling API.")
-    # data = generate_youtube_shorts_scripts(video_script_prompts)
-    # ic(data)
+    # 3. Generate the scripts by calling API.
+    ic("🪼 3. Generate the scripts by calling API.")
+    data = generate_youtube_shorts_scripts(video_script_prompts)
+    ic(data)
    
-    # # 4. Save data locally.
-    # ic("🪼 4. Save data locally.")
-    # csv_path = f"{output_dir}/{HISTORY}/{GOOGLE_SHEET_NAME}.csv"
-    # data.to_csv(csv_path)
-    # ic(csv_path)
+    # 4. Save data locally.
+    ic("🪼 4. Save data locally.")
+    csv_path = f"{output_dir}/{HISTORY}/{GOOGLE_SHEET_NAME}.csv"
+    data.to_csv(csv_path)
+    ic(csv_path)
 
-    # # 5. Upload script data to Google Sheet.
-    # ic("🪼 5. Upload script data to Google Sheet.")
-    # ic("SKIPPING")
-    # # upload_data_to_google_sheets(data)
+    # 5. Upload script data to Google Sheet.
+    ic("🪼 5. Upload script data to Google Sheet.")
+    ic("SKIPPING")
+    # upload_data_to_google_sheets(data)
    
-    # # 6. Create audio files from scripts.
-    # ic("🪼 6. Create audio files from scripts.") 
-    # audio_path = f"{output_dir}/{RAW_AUDIO}"
-    # audio_data_dir = generate_raw_audio_files(csv_path, output_dir=audio_path)
-    # ic(audio_data_dir)
+    # 6. Create audio files from scripts.
+    ic("🪼 6. Create audio files from scripts.") 
+    audio_path = f"{output_dir}/{RAW_AUDIO}"
+    audio_data_dir = generate_raw_audio_files(csv_path, output_dir=audio_path)
+    ic(audio_data_dir)
 
     # 7. Setting up paths for data.
     ic("🪼 7. Setting up paths for data.")
-    output_dir = "/Users/paulfentress/Desktop/Jellyfish"
+    output_dir = "Jellyfish"
     video_data_dir = f"{output_dir}/{ONE_MINUTE_VIDEOS}/" 
     merged_videos_dir = f"{output_dir}/{VIDEOS_MERGED_WITH_AUDIO}/" 
     fade_and_slice_videos = f"{output_dir}/{FADED_AND_SLICED_VIDEOS}/" 
