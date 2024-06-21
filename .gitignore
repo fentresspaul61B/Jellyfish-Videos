@@ -58,3 +58,10 @@ docs/_build/
 # Not saving vscode settings.
 .vscode
 jellyfish_venv
+.venv
+
+# Ignore the files created
+Jellyfish
+
+# Ignore reference images, until they are loaded into GitHub.
+reference_images

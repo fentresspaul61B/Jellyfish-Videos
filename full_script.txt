@@ -1,0 +1,47 @@
+Open new terminal
+
+Start the following script (which will be on cron job):
+
+Make new project dir
+
+Clone project into dir. 
+
+cd into project. 
+
+start venv. 
+
+run video generation. 
+
+open video folder using terminal
+
+Open google chrome incognito.
+
+Use "column mode" on window tile manager to split the tabs evenly
+"option" + "shift" + "f"
+
+go to https://studio.youtube.com
+
+Enter email. 
+Enter password. 
+
+LOOP: 
+Start the script: 
+
+Click create button.
+Click upload button. 
+Go to terminal. 
+Copy and paste inference_id into terminal. 
+Find and click file. 
+Drag file into upload area. 
+Use "option" + "shift" + "d" to go into full screen mode on chrome. 
+
+Go through automation script. 
+
+copy link and save it to a list/dictionary.
+
+Go back to column mode again using:
+"option" + "shift" + "f" 
+
+Restart the loop.
+
+

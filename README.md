@@ -140,5 +140,9 @@ Think
 
 Run the script in GCP cloud run.
 
+Have the scripts 
+
+https://www.digitalocean.com/community/tutorials/how-to-generate-and-add-subtitles-to-videos-using-python-openai-whisper-and-ffmpeg
+
 
 

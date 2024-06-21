@@ -66,6 +66,10 @@ import subprocess
 # Used to format seconds data for subtitles.
 import math
 
+# Used for cleaning up old folders
+import shutil
+
+
 # Configs file can be edited to adjust prompts, voices and more. 
 with open('configs.json', 'r') as file:
     configs = json.load(file)
@@ -94,6 +98,7 @@ FADED_AND_SLICED_VIDEOS = "FADED_AND_SLICED_VIDEOS"
 VIDEOS_WITH_SUBTITLES = "VIDEOS_WITH_SUBTITLES"
 HISTORY = "HISTORY"
 SUBTITLES = "SUBTITLES"
+ROOT_DIR = "./Jellyfish"
 
 # Unpacking secrets.
 OPENAI_API_KEY   = secrets["OPENAI_API_KEY"]
@@ -897,7 +902,26 @@ def generate_video_data(
     return "Done"
 
 
-def clean_up():
+def clean_up() -> None:
+
+    dirs = [
+        ONE_MINUTE_VIDEOS,
+        VIDEOS_MERGED_WITH_AUDIO,
+        FADED_AND_SLICED_VIDEOS,
+        RAW_AUDIO,
+        SUBTITLES
+    ]
+
+    for dir in dirs:
+        full_path = os.path.join(ROOT_DIR, dir)
+        try:
+            if os.path.exists(full_path):
+                shutil.rmtree(full_path)
+                print(f"Directory '{full_path}' has been deleted.")
+            else:
+                print(f"The directory '{full_path}' does not exist.")
+        except Exception as e:
+            print(f"Error occurred while deleting directory: {e}")
     pass
 
 
@@ -972,7 +996,7 @@ def pipeline():
 
 
 def main():
-    pipeline()
+    # pipeline()
     # extracted_audio = "/Users/paulfentress/Desktop/Jellyfish/raw_audio/2f5ed3ac-0cf6-441e-a911-de12de506892.mp3"
     # language, segments = transcribe(audio=extracted_audio)
     # subtitle_file = generate_subtitle_file_ass(
@@ -985,6 +1009,9 @@ def main():
     # subtitles = "/Users/paulfentress/Desktop/Jellyfish/raw_audio/2f5ed3ac-0cf6-441e-a911-de12de506892.en.ass"
     # output_dir = "/Users/paulfentress/Desktop/Jellyfish/videos_with_subtitles"
     # burn_subtitles_into_video(video=video, subtitles=subtitles, output_dir=output_dir)
+    # cd Desktop/jelly_fish/Jellyfish-Videos/Jellyfish/VIDEOS_WITH_SUBTITLES
+    # open .
+    clean_up()
     pass
 
 

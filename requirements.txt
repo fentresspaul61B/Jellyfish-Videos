@@ -5,3 +5,6 @@ oauth2client
 tiktoken
 faster-whisper
 icecream
+pyautogui
+opencv-python
+pyperclip
