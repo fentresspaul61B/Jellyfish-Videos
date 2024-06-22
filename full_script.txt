@@ -25,7 +25,6 @@ Enter email.
 Enter password. 
 
 LOOP: 
-Start the script: 
 
 Click create button.
 Click upload button. 

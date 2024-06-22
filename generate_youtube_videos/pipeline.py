@@ -280,7 +280,7 @@ def pipeline(num_videos_to_generate: int = NUM_VIDEOS_TO_GENERATE) -> bool:
     ic(job_status)
 
     # 9. Cleaning up data.
-    clean_up_post_run()
+    # clean_up_post_run()
 
     return True
 

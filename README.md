@@ -144,5 +144,10 @@ Have the scripts
 
 https://www.digitalocean.com/community/tutorials/how-to-generate-and-add-subtitles-to-videos-using-python-openai-whisper-and-ffmpeg
 
+Issue:
+Images of video files are selected based on probability and similarity
+to reference video, not on inference id, so need to figure out a way
+to sync the reference ID, with the process of dragging, and dropping
+the video.
 
 
