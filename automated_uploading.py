@@ -4,6 +4,15 @@ from icecream import ic
 import cv2
 import pyperclip
 import pandas as pd
+import json
+
+
+with open('secrets.json', 'r') as file:
+    secrets = json.load(file)
+
+EMAIL = secrets["EMAIL"]
+EMAIL_PASSWORD = secrets["EMAIL_PASSWORD"]
+YOUTUBE_URL = "https://studio.youtube.com"
 
 WIDTH, HEIGHT = pyautogui.size()
 PUBLISH_VIDEO = False
@@ -19,6 +28,7 @@ PUBLIC_BUTTON = "reference_images/public.png"
 PUBLISH_BUTTON = "reference_images/publish.png"
 EXIT_BUTTON = "reference_images/x_button_in_upload_tab.png"
 SEARCH_MAC_BUTTON = "reference_images/search_mac.png"
+CHROME_BUTTON = "reference_images/chrome.png"
 
 # DARK MODE
 SEARCH_MAC_BUTTON_DARK = "reference_images/dark_mode/search_mac.png"
@@ -30,6 +40,12 @@ TITLE_BUTTON_DARK = "reference_images/dark_mode/title.png"
 DESCRIPTION_BUTTON_DARK = "reference_images/dark_mode/description.png"
 MADE_FOR_KIDS_BUTTON_DARK = "reference_images/dark_mode/made_for_kids.png"
 DETAILS_DARK = "reference_images/dark_mode/details.png"
+PUBLIC_BUTTON_DARK = "reference_images/dark_mode/public.png"
+BACK_BUTTON_DARK = "reference_images/dark_mode/back.png"
+INCOGNITIO_DARK = "reference_images/dark_mode/incognito.png"
+SEARCH_CHROME_DARK = "reference_images/dark_mode/search_chrome.png"
+TERMINAL_DARK = "reference_images/dark_mode/TERMINAL.png"
+NEW_WINDOW_DARK = "reference_images/dark_mode/NEW_WINDOW_DARK.png"
 
 VIDEO_DESCRIPTION = """
 Please donate to protect wild animals: https://www.wildanimalinitiative.org/donate
@@ -72,7 +88,7 @@ def apply_scaling_to_coordinate(coordinate, scale_factor=2):
 
 def move_to_coordinate(coordinate, duration=1):
     center_x, center_y = apply_scaling_to_coordinate(coordinate)
-    pyautogui.moveTo(center_x , center_y, duration=duration)
+    pyautogui.moveTo(center_x, center_y, duration=duration)
     return coordinate
 
 
@@ -83,7 +99,11 @@ def drag_to_coordinate(coordinate, duration=1):
 
 
 def find_area(image_path, confidence=0.9):
-    return pyautogui.locateOnScreen(image_path, confidence=confidence)
+    try:
+        coords = pyautogui.locateOnScreen(image_path, confidence=confidence)
+        return coords
+    except Exception as e:
+        return False
 
 
 def find_areas_to_click(image_path):
@@ -94,7 +114,7 @@ def find_areas_to_click(image_path):
 def find_areas_to_click(image_path, confidence=0.7, tolerance=20):
     """The confidence and tolerance should be tweeked to find the best settings
     In order to capture all the unique images.
-    
+
     The tolereance is used to make sure duplicate file images are not returned.
     And confidence is used as a way to change how leniant the model will be
     when returning matches.
@@ -102,8 +122,9 @@ def find_areas_to_click(image_path, confidence=0.7, tolerance=20):
     I will likely need to train a more generalized model because image files will all
     look different, and these just happen to be for surfing videos right now.
     """
-    locations = list(pyautogui.locateAllOnScreen(image_path, confidence=confidence))
-    
+    locations = list(pyautogui.locateAllOnScreen(
+        image_path, confidence=confidence))
+
     def is_nearby(coord1, coord2, tolerance):
         return abs(coord1[0] - coord2[0]) < tolerance and abs(coord1[1] - coord2[1]) < tolerance
 
@@ -111,7 +132,7 @@ def find_areas_to_click(image_path, confidence=0.7, tolerance=20):
     for loc in locations:
         if not any(is_nearby(loc, other, tolerance) for other in filtered_locations):
             filtered_locations.append(loc)
-    
+
     return filtered_locations
 
 
@@ -127,7 +148,7 @@ def press_key(key: str) -> None:
 def zoom_out(presses=1):
     for _ in range(presses):
         with pyautogui.hold('command'):
-            pyautogui.press(['-']) 
+            pyautogui.press(['-'])
     # Releasing all keys just incase.
     for key in ('shift', 'ctrl', 'command', 'alt', 'fn'):
         pyautogui.keyUp(key)
@@ -136,14 +157,13 @@ def zoom_out(presses=1):
 def bring_window_to_front():
     with pyautogui.hold('option'):
         with pyautogui.hold('shift'):
-            pyautogui.press('d') 
+            pyautogui.press('d')
+
 
 def switch_windows():
     with pyautogui.hold('option'):
         with pyautogui.hold('shift'):
-            pyautogui.press('k') 
-
-
+            pyautogui.press('k')
 
 
 def add_text_in_current_area(text: str):
@@ -158,9 +178,7 @@ def paste_in_current_area():
     for key in ('shift', 'ctrl', 'command', 'alt', 'fn'):
         pyautogui.keyUp(key)
     with pyautogui.hold('command'):
-        pyautogui.press('v') 
-    
-
+        pyautogui.press('v')
 
 
 def load_history(history: str = HISTORY) -> pd.DataFrame:
@@ -168,23 +186,35 @@ def load_history(history: str = HISTORY) -> pd.DataFrame:
     return df
 
 
-def find_and_click_button(button_reference_image_path: str, confidence=0.9):
+def find_and_click_button(button_reference_image_path: str, confidence=0.9, button="LEFT"):
+    """
+    DESCRIPTION:
+    Finds and clicks a button.
+
+    ARGS:
+    - button_reference_image_path (str): Path to button image.
+    - confidence (float): Confidence required to say a button is found.
+
+    RETURNS:
+    coordinate object if found, otherwise false.
+    """
 
     found_button = False
     attempts = 0
 
     while not found_button and attempts < 10:
-        time.sleep(1)
+        time.sleep(3)
         try:
-            coordinate = pyautogui.locateOnScreen(button_reference_image_path, confidence=confidence)
+            coordinate = pyautogui.locateOnScreen(
+                button_reference_image_path, confidence=confidence)
             found_button = True
             center_x, center_y = apply_scaling_to_coordinate(coordinate)
-            pyautogui.moveTo(center_x , center_y)
-            pyautogui.click()
+            pyautogui.moveTo(center_x, center_y)
+            pyautogui.click(button=button)
             return coordinate
         except Exception as e:
             bring_window_to_front()
-            time.sleep(1)
+            time.sleep(3)
             switch_windows()
             attempts += 1
             confidence -= 0.1
@@ -197,8 +227,32 @@ def pipeline():
 
     df = load_history()
 
-    zoomed_out = False
     PUBLISH_VIDEO = True
+
+    # Find chrome.
+    # find_and_click_button(MADE_FOR_KIDS_BUTTON_DARK, 0.6)
+    # find_and_click_button(NEXT_BUTTON, 0.6)
+    find_and_click_button(CHROME_BUTTON, button="RIGHT")
+
+    time.sleep(3)
+    find_and_click_button(INCOGNITIO_DARK, confidence=0.7)
+
+    time.sleep(3)
+    pyperclip.copy(YOUTUBE_URL)
+    paste_in_current_area()
+
+    time.sleep(3)
+    press_key("enter")
+
+    time.sleep(3)
+    pyperclip.copy(EMAIL)
+    paste_in_current_area()
+    press_key("enter")
+
+    time.sleep(3)
+    pyperclip.copy(EMAIL_PASSWORD)
+    paste_in_current_area()
+    press_key("enter")
 
     for row in df.iterrows():
         ic(row[1].to_dict())
@@ -244,10 +298,10 @@ def pipeline():
 
         if PUBLISH_VIDEO:
 
-            find_and_click_button(DETAILS_DARK, 0.7)
+            # find_and_click_button(DETAILS_DARK, 0.7)
 
-            find_and_click_button(TITLE_BUTTON_DARK, 0.7)
-  
+            # find_and_click_button(TITLE_BUTTON_DARK, 0.7)
+
             time.sleep(3)
             delete_text_in_current_area()
             title = row[1].to_dict()["VIDEO_TITLE"].strip('""')
@@ -257,18 +311,24 @@ def pipeline():
             time.sleep(1)
             press_key("enter")
 
+            time.sleep(3)
+            bring_window_to_front()
+            time.sleep(3)
+
             find_and_click_button(DESCRIPTION_BUTTON_DARK, 0.7)
             delete_text_in_current_area()
             # add_text_in_current_area(VIDEO_DESCRIPTION)
             pyperclip.copy(VIDEO_DESCRIPTION)
             paste_in_current_area()
 
+            time.sleep(3)
+
             pyautogui.scroll(-5)
-            while not find_and_click_button(MADE_FOR_KIDS_BUTTON_DARK, 0.6):
+            while not find_area(MADE_FOR_KIDS_BUTTON_DARK, 0.6):
                 pyautogui.scroll(-5)
                 time.sleep(2)
 
-
+            find_and_click_button(MADE_FOR_KIDS_BUTTON_DARK, 0.6)
 
             time.sleep(2)
             find_and_click_button(NEXT_BUTTON)
@@ -278,23 +338,13 @@ def pipeline():
             find_and_click_button(NEXT_BUTTON)
 
             time.sleep(30)
-            find_and_click_button(PUBLIC_BUTTON)
+            find_and_click_button(PUBLIC_BUTTON_DARK)
             time.sleep(3)
             find_and_click_button(PUBLISH_BUTTON)
             find_and_click_button(EXIT_BUTTON)
 
         find_and_click_button(EXIT_BUTTON)
 
-
-
-
-
-
-
-
-
-
-    
 
 def run_pipeline():
     ic("Sleeping")
@@ -349,9 +399,12 @@ def run_pipeline():
 
 
 def main():
-#    
     time.sleep(5)
-    pipeline()
+    find_and_click_button(TERMINAL_DARK, button="RIGHT")
+
+    time.sleep(3)
+    find_and_click_button(NEW_WINDOW_DARK, confidence=0.7)
+
     # zoom_out(5)
     # run_pipeline()
     # public_button = "reference_images/public.png"
@@ -361,10 +414,9 @@ def main():
 
     # ic(len(video_file_image_locations))
 
+    #    delete_text_in_current_area()
 
-#    delete_text_in_current_area()
-
-#    time.sleep(2)
+    #    time.sleep(2)
 
     # pyautogui.click()
     # pyautogui.hotkey('command', 'a', interval=0.1)
@@ -376,7 +428,7 @@ def main():
     # clipboard_data = pyperclip.paste()
     # print(clipboard_data)
 
-#    add_text_in_current_area("ANOTHER TEST")
+    #    add_text_in_current_area("ANOTHER TEST")
 
 
 if __name__ == "__main__":
