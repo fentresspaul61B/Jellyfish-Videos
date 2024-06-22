@@ -15,6 +15,9 @@ TESTING_DF = pd.read_csv(HISTORY_CSV, index_col=0)
 TEST_AUDIO_1 = "generate_youtube_videos/audio/tests/files_for_testing/5f4e7edb-a590-4217-9572-f4b55f170e76.mp3"
 TEST_AUDIO_2 = "generate_youtube_videos/audio/tests/files_for_testing/9a3efaa5-ecea-4faf-bb15-b621a0c4b96c.mp3"
 
+# TODO: Make it so the files are pulled and downloaded from somewhere
+# for testing, so we dont run into issues with pushing large files to git.
+
 
 def test_generate_raw_audio_files():
     with tempfile.TemporaryDirectory() as temp_output_dir:

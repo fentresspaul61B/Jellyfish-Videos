@@ -65,3 +65,5 @@ Jellyfish
 
 # Ignore reference images, until they are loaded into GitHub.
 reference_images
+
+*.mp3
