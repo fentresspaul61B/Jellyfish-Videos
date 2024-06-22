@@ -20,10 +20,7 @@ def segment_video(
 
     RETURNS:
     output_dir
-
-
     """
-
     # Checking if output dir exists, otherwise, make it.
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -79,7 +76,6 @@ def merge_audio_video(
     RETURNS:
     merged_video_path (str)
     """
-
     # Ensure the output directory exists.
     output_dir = os.path.dirname(merged_video_path)
     if output_dir and not os.path.exists(output_dir):
@@ -132,7 +128,6 @@ def fade_and_slice_video(
     RETURNS:
     output_video_path (str)
     """
-
     # Total video duration is the length of the audio + length of fade.
     duration = audio_length + fade_duration
 

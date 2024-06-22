@@ -1,37 +1,34 @@
+# Add the Jellyfish-Videos directory to sys.path
+import sys
+from configs import NUM_VIDEOS_TO_GENERATE
+from configs import SUBTITLES
+from configs import VIDEOS_WITH_SUBTITLES
+from configs import FADED_AND_SLICED_VIDEOS
+from configs import VIDEOS_MERGED_WITH_AUDIO
+from configs import RAW_AUDIO
+from configs import GOOGLE_SHEET_NAME
+from configs import HISTORY
+from configs import ONE_MINUTE_VIDEOS
+from generate_youtube_videos.file_operations import clean_up_pre_run
+from generate_youtube_videos.file_operations import clean_up_post_run
+from generate_youtube_videos.file_operations import initialize_empty_directories
+from generate_youtube_videos.text.generation import generate_youtube_shorts_scripts
+from generate_youtube_videos.text.generation import create_video_script_prompts
+from generate_youtube_videos.video.operations import segment_video
+from generate_youtube_videos.video.operations import fade_and_slice_video
+from generate_youtube_videos.video.operations import merge_audio_video
+from generate_youtube_videos.video.operations import burn_subtitles_into_video
+from generate_youtube_videos.audio.generation import generate_raw_audio_files
+from generate_youtube_videos.audio.operations import get_audio_duration
+from generate_youtube_videos.audio.operations import generate_subtitle_file_ass
+from generate_youtube_videos.audio.operations import transcribe
 from icecream import ic
 import os
 import random
 
-# AUDIO OPERATIONS:
-from generate_youtube_videos.audio_operations import transcribe
-from generate_youtube_videos.audio_operations import generate_subtitle_file_ass
-from generate_youtube_videos.audio_operations import get_audio_duration
-
-# AUDIO GENERATION:
-from generate_youtube_videos.audio_generation import generate_raw_audio_files
-
-# VIDEO OPERATIONS
-from generate_youtube_videos.video_operations import burn_subtitles_into_video
-from generate_youtube_videos.video_operations import merge_audio_video
-from generate_youtube_videos.video_operations import fade_and_slice_video
-from generate_youtube_videos.video_operations import segment_video
-
-# TEXT GENERATION
-from generate_youtube_videos.text_generation import create_video_script_prompts
-from generate_youtube_videos.text_generation import generate_youtube_shorts_scripts
-
-# FILE OPERATIONS
-from generate_youtube_videos.file_operations import initialize_empty_directories
-from generate_youtube_videos.file_operations import clean_up
-
-from configs import ONE_MINUTE_VIDEOS
-from configs import HISTORY
-from configs import GOOGLE_SHEET_NAME
-from configs import RAW_AUDIO
-from configs import VIDEOS_MERGED_WITH_AUDIO
-from configs import FADED_AND_SLICED_VIDEOS
-from configs import VIDEOS_WITH_SUBTITLES
-from configs import SUBTITLES
+# Need to run:
+# export PYTHONPATH="/Users/paulfentress/Desktop/jelly_fish/Jellyfish-Videos:$PYTHONPATH"
+# For imports to work.
 
 
 def add_subtitles_to_video(
@@ -203,11 +200,15 @@ def generate_video_data(
     return "Done"
 
 
-def pipeline() -> bool:
+def pipeline(num_videos_to_generate: int = NUM_VIDEOS_TO_GENERATE) -> bool:
     """DESCRIPTION:
-    Generates 1 minute videos about JellyFish.
+    Generates 1 minute videos about JellyFish. Have not yet tested 
+    generating over 100 videos, usually just do small batches of 10, 
+    because thats what the YouTube daily upload limit is for new 
+    accounts.
 
-    ARGS: None
+    ARGS: 
+    - num_videos_to_generate (int): The number of videos to generate.
 
     RETURNS:
     bool
@@ -216,6 +217,7 @@ def pipeline() -> bool:
     # 0. Creating directories for script.
     ic("🪼 0. Creating directories for script.")
     # The long video path will be made into a parameter.
+    clean_up_pre_run()
     long_video_path = "/Users/paulfentress/Desktop/long_jellyfish_vid.mp4"
     output_dir = initialize_empty_directories()
     ic(long_video_path)
@@ -227,9 +229,10 @@ def pipeline() -> bool:
     short_videos = segment_video(long_video_path, video_data_dir)
     ic(short_videos)
 
-    # 2. Generate 10 prompts.
-    ic("🪼 2. Generate 10 prompts.")
-    video_script_prompts = create_video_script_prompts(num_prompts=2)
+    # 2. Generate n prompts.
+    ic("🪼 2. Generates num_videos_to_generate prompts.")
+    video_script_prompts = create_video_script_prompts(
+        num_prompts=num_videos_to_generate)
     ic(video_script_prompts)
 
     # 3. Generate the scripts by calling API.
@@ -277,6 +280,14 @@ def pipeline() -> bool:
     ic(job_status)
 
     # 9. Cleaning up data.
-    clean_up()
+    clean_up_post_run()
 
     return True
+
+
+def main():
+    pipeline()
+
+
+if __name__ == "__main__":
+    main()

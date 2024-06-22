@@ -13,7 +13,6 @@ def get_audio_duration(audio_path: str) -> float:
     RETURNS:
     duration (float): Audio duration in seconds.
     """
-
     # Run the ffprobe command to get the duration of the audio file.
     command = [
         'ffprobe',
@@ -50,8 +49,6 @@ def transcribe(audio: str) -> tuple:
 
     RETURNS:
     language (str), segments (list)
-
-
     """
     model = WhisperModel("small")
     segments, info = model.transcribe(audio)
