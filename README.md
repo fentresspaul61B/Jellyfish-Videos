@@ -1,6 +1,6 @@
 # 🪼 Jellyfish GPT 
 
-(https://github.com/fentresspaul61B/Jellyfish-Videos/actions/workflows/run_tests.yml/badge.svg)
+![example workflow](https://github.com/fentresspaul61B/Jellyfish-Videos/actions/workflows/run_tests.yml/badge.svg)
 
 ![alt text](images/jellyfish.gif)
 
