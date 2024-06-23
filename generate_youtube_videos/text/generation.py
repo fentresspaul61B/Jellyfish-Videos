@@ -106,7 +106,7 @@ def tokenizer(string: str, encoding_type: str) -> list:
     - encoding_type: (str): Encoding type for tokenizer.
 
     RETURNS:
-    Encoding object.
+    tokens
     """
 
     encoding = encoding_getter(encoding_type)

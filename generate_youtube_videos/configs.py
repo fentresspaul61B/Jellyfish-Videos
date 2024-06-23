@@ -1,13 +1,12 @@
 import json
-# Open AI used for generating video scripts, and text to speech.
 import openai
 from openai import OpenAI
 import os
-# Icecream used for better ic statements and debugging.
 from icecream import ic
 
 # Configs file can be edited to adjust prompts, voices and more.
-with open('./configs.json', 'r') as file:
+config_path = "video_domains/jellyfish_domain/configs.json"
+with open(config_path, 'r') as file:
     configs = json.load(file)
 
 with open('./secrets.json', 'r') as file:
@@ -23,7 +22,6 @@ CREATE_TITLE_PROMPT = configs["CREATE_TITLE_PROMPT"]
 PRICE_PER_TOKEN = configs["PRICE_PER_TOKEN"]
 SPREADSHEET_ID = configs["SPREADSHEET_ID"]
 GOOGLE_SHEET_NAME = configs["GOOGLE_SHEET_NAME"]
-# DESKTOP_PATH        = configs["DESKTOP_PATH"]
 DESKTOP_PATH = "."
 
 # Folder names
