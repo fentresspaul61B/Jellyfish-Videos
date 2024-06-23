@@ -67,3 +67,5 @@ Jellyfish
 reference_images
 
 *.mp3
+
+.pytest_cache
