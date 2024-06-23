@@ -23,6 +23,7 @@ def generate_raw_audio_files(
     """
 
     # Converting csv to dataframe.
+
     df = pd.read_csv(script_csv_file)
 
     # Each row represents one video script.

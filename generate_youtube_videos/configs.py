@@ -41,6 +41,9 @@ NUM_VIDEOS_TO_GENERATE = 2
 
 # SUBTITLES SETTINGS
 
+# GCP SETTINGS
+TEST_DATA_BUCKET_GCP = "test-data-jellyfish"
+
 
 # Unpacking secrets.
 OPENAI_API_KEY = secrets["OPENAI_API_KEY"]

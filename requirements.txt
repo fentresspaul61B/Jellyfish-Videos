@@ -8,3 +8,4 @@ icecream
 pyautogui
 opencv-python
 pyperclip
+google-cloud-storage

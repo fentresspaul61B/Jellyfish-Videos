@@ -1,6 +1,10 @@
 # OS used for directory actions.
 import os
 import shutil
+from google.cloud import storage
+from icecream import ic
+import tempfile
+import pandas as pd
 
 from configs import DESKTOP_PATH
 from configs import GOOGLE_SHEET_NAME
@@ -12,6 +16,7 @@ from configs import VIDEOS_WITH_SUBTITLES
 from configs import HISTORY
 from configs import SUBTITLES
 from configs import ROOT_DIR
+from configs import TEST_DATA_BUCKET_GCP
 
 
 def initialize_empty_directories(output_dir: str = None):
@@ -119,3 +124,56 @@ def clean_up_pre_run():
     delete_dirs(INTERMEDIARY_DATA)
     delete_dirs(FINAL_DATA)
     delete_dir(ROOT_DIR)
+
+
+def pull_test_history_data_from_GCP() -> pd.DataFrame:
+    """DESCRIPTION:
+    Pulls down the history dataframe GCP. Save it as a file in a temp
+    folder. Converts CSV to dataframe, and returns the dataframe.
+
+    ARGS: None
+
+    RETURNS:
+    df (pd.DataFrame)
+    """
+    client = storage.Client()
+    bucket_name = f"{TEST_DATA_BUCKET_GCP}"
+    bucket = client.bucket(bucket_name)
+    blobs = bucket.list_blobs(prefix="Jellyfish/HISTORY/")
+
+    df = pd.DataFrame()
+
+    with tempfile.TemporaryDirectory() as temp_output_dir:
+        for blob in blobs:
+            name = os.path.basename(blob.name)
+            if name == "Jellyfish.csv":
+                file_name = os.path.join(temp_output_dir, name)
+                blob.download_to_filename(file_name)
+                df = pd.read_csv(file_name, index_col=0)
+
+    return df
+
+
+def download_audio_files_from_gcp(bucket_name, prefix, temp_dir):
+    """Download audio files from a specified GCP bucket into a temporary directory."""
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blobs = bucket.list_blobs(prefix=prefix)
+    audio_files = []
+
+    for blob in blobs:
+        name = os.path.basename(blob.name)
+        if name.endswith(".mp3"):
+            local_path = os.path.join(temp_dir, name)
+            blob.download_to_filename(local_path)
+            audio_files.append(local_path)
+
+    return audio_files
+
+
+def main():
+    ic(pull_test_history_data_from_GCP().shape)
+
+
+if __name__ == "__main__":
+    main()
