@@ -10,3 +10,6 @@ opencv-python
 pyperclip
 google-cloud-storage
 pytest
+fastapi
+uvicorn
+google-cloud-pubsub

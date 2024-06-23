@@ -2,7 +2,7 @@
 
 ![example workflow](https://github.com/fentresspaul61B/Jellyfish-Videos/actions/workflows/run_tests.yml/badge.svg)
 
-![alt text](images/jellyfish.gif)
+![alt text](docs/images/jellyfish.gif)
 
 ## AI Generated Educational Video Content About Jellyfish 
 This project uses FFPMEG, OpenAI Assistants, and OpenAI TTS to create short educational videos about jellyfish. The purpose of purpose of this project is to explore how to quickly generate batches of high quality and factual content using an OpenAI assistant with a knowledge base, which can be used for educational purposes. 
@@ -32,7 +32,7 @@ Factual information from the web, about jellyfish, used for the agents knowledge
 ## Implementation
 
 
-<img src="images/script_diagram.png" alt="alt text" width="700"/>
+<img src="docs/images/script_diagram.png" alt="alt text" width="700"/>
 
 ### Step #1: Add data to knowledge base
 In order to create content that is based on facts and avoid LLM hallucinations, factual scientific information from the web is utilized to create a knowledge base for the agent.  This knowledge base is stored in a text file. Below is a snippet from the knowledge base:
@@ -89,14 +89,14 @@ Once the video scripts are complete in text format, the audio is generated from 
 ### Step #6: Merge and edit short videos with audio using FFMPEG 
 Short videos are merged, trimmed, cropped, and faded using FFMPEG. A one minute background video is randomly selected from the batch, and merged with the audio iteratively.
 
-![alt text](images/generated_videos_in_dir.png)
+![alt text](docs/images/generated_videos_in_dir.png)
 
 ### Step #7: Upload videos to YouTube
 There is now 2 main components to upload the videos: 
 1. The Google Sheet: Used to copy and paste video title into YouTube UI
 2. Directory of final videos.
 
-![alt text](images/youtube.gif)
+![alt text](docs/images/youtube.gif)
 
 
 ## Sources
@@ -151,5 +151,8 @@ Images of video files are selected based on probability and similarity
 to reference video, not on inference id, so need to figure out a way
 to sync the reference ID, with the process of dragging, and dropping
 the video.
+
+Use Infrastructure as code, so when the script is generalized, I can spin up 
+multiple different video generators, on different servers. 
 
 

@@ -35,12 +35,15 @@ SUBTITLES = "SUBTITLES"
 ROOT_DIR = "./Jellyfish"
 VIDEO_TITLE_TEMP = 1
 NUM_VIDEOS_TO_GENERATE = 2
+URL_TO_REDIRECT_TO = "https://www.wildanimalinitiative.org/donate"
 
 
 # SUBTITLES SETTINGS
 
 # GCP SETTINGS
 TEST_DATA_BUCKET_GCP = "test-data-jellyfish"
+GCP_PROJECT_ID = "video-generation-404817"
+CLICKED_LINK_TOPIC_ID = "CLICKED-LINK"
 
 
 # Unpacking secrets.
