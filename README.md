@@ -1,5 +1,7 @@
 # 🪼 Jellyfish GPT 
 
+(https://github.com/fentresspaul61B/Jellyfish-Videos/actions/workflows/run_tests.yml/badge.svg)
+
 ![alt text](images/jellyfish.gif)
 
 ## AI Generated Educational Video Content About Jellyfish 
