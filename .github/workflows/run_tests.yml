@@ -12,6 +12,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Create Secrets File
+        run: |
+          echo '${{ secrets.SECRET_JSON }}' > secrets.json
+
       - name: Install ffmpeg
         uses: FedericoCarboni/setup-ffmpeg@v3
         with:
