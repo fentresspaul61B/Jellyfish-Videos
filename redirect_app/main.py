@@ -1,47 +1,41 @@
-
-
-from fastapi import FastAPI, Query
-from starlette.responses import RedirectResponse
-from generate_youtube_videos.configs import URL_TO_REDIRECT_TO
-from generate_youtube_videos.configs import GCP_PROJECT_ID
-from generate_youtube_videos.configs import CLICKED_LINK_TOPIC_ID
-from google.cloud import pubsub_v1
-import json
-
-
-app = FastAPI()
-
-# http://127.0.0.1:8000/redirect?source=my_source
-
-
+"""
 # How to run the code locally:
 # CD into root dir.
 # Run: uvicorn redirect_app.main:app --reload
 # To access the redirect app use this URL:
 # http://127.0.0.1:8000/redirect?source=INFERENCE_ID
+"""
+
+from fastapi import FastAPI, Query
+from starlette.responses import RedirectResponse
+from google.cloud import pubsub_v1
+import json
+from configs import URL_TO_REDIRECT_TO
+from configs import GCP_PROJECT_ID
+from configs import CLICKED_LINK_TOPIC_ID
+
+
+app = FastAPI()
 
 PUBLISHER = pubsub_v1.PublisherClient()
+TOPIC_PATH = PUBLISHER.topic_path(GCP_PROJECT_ID, CLICKED_LINK_TOPIC_ID)
 
 
 @app.get("/redirect")
 def redirect_url(source: str = Query(default="unknown")):
     """DESCRIPTION:
+    Redirects clicks on this URL, to the target URL for donations
+    URL_TO_REDIRECT_TO. Data is logged in bigquery using pub-sub. 
+    Pub-sub is used for low latency. Only the INFERENCE_ID is 
+    collected, and additional meta data is added automatically by pub
+    sub.
 
     ARGS:
 
     RETURNS:
     """
-
-    topic_path = PUBLISHER.topic_path(GCP_PROJECT_ID, CLICKED_LINK_TOPIC_ID)
-
     data = json.dumps({"INFERENCE_ID": source}).encode("utf-8")
-
-    future = PUBLISHER.publish(topic_path, data)
-    print(f"Published message ID: {future.result()}")
-    print(source)
-
-    # TODO: Fire pub sub event, to store data in BQ.
-    # projects/video-generation-404817/topics/CLICKED-LINK
+    _ = PUBLISHER.publish(TOPIC_PATH, data=data)
     return RedirectResponse(url=URL_TO_REDIRECT_TO)
 
 
