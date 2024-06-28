@@ -39,6 +39,11 @@ def redirect_url(source: str = Query(default="unknown")):
     return RedirectResponse(url=URL_TO_REDIRECT_TO)
 
 
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

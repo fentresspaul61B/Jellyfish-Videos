@@ -17,6 +17,8 @@ cd into the redirect_app dir.
 Go to this URL and change the "source" value
 http://127.0.0.1:8000/redirect?source=INFERENCE_ID
 
+https://get.docker.com/?_gl=1*ir9fbn*_ga*OTU3NTU5ODI1LjE3MTg4MzQwMDk.*_ga_XJWPQMJYHQ*MTcxOTI5MjAxMS4zLjEuMTcxOTI5MjAzOC4zMy4wLjA.
+
 ## Pushing docker image to GCP
 List all images:
 docker images
@@ -60,8 +62,24 @@ docker push LOCATION-docker.pkg.dev/PROJECT-ID/REPOSITORY/IMAGE
 
 docker push us-central1-docker.pkg.dev/video-generation-404817/clicked-links/redirect_app_web
 
+docker pull us-central1-docker.pkg.dev/video-generation-404817/redirect-app/redirect_app_web
+
+
+gcloud auth print-access-token
+
+docker login -u oauth2accesstoken https://us-central1-docker.pkg.dev
+Paste in password
+
+sudo docker pull us-central1-docker.pkg.dev/video-generation-404817/clicked-links/redirect_app_web
+
+gcloud compute firewall-rules create allow-http-8000 \
+>     --allow tcp:8000 \
+>     --source-ranges 0.0.0.0/0 \
+>     --target-tags http-server
+
 
 http://34.133.138.45:8000/redirect?source=INFERENCE_ID
+
 
 
 # IAC
@@ -69,17 +87,24 @@ Use terraform to create GCE instance
 Use Ansible to install docker, create image, pull code etc ... 
 
 # STUCK:
-Stuck on pulling docker image from GCP repo into GCE server. Able to
-download docker, and pull public hello world image, but unable to 
-pull my own down. 
+Was able to get the docker container to start, and to pull the image, but now: 
+Unable to make requests to endpoint. 
+I have tried this command: 
+http://34.133.138.45:8000/redirect?source=INSIDE_GCE
 
-This command is failing: 
-```bash
-pauls_ml_projects@redirect-app:~$ sudo docker pull us-central1-docker.pkg.dev/video-generation-404817/clicked-links/redirect_app_web
-Using default tag: latest
-Error response from daemon: Head "https://us-central1-docker.pkg.dev/v2/video-generation-404817/clicked-links/redirect_app_web/manifests/latest": denied: Unauthenticated request. Unauthenticated requests do not have permission "artifactregistry.repositories.downloadArtifacts" on resource "projects/video-generation-404817/locations/us-central1/repositories/clicked-links" (or it may not exist)
+And it just hangs. The IP is from the VM. Also, does not work locally inside the VM when using CURL. 
+
+```
+pauls_ml_projects@redirect-app:~$ curl http://0.0.0.0:8000/redirect?source=hello
+``` 
+
+runs without errors in VM, but does not create record in BQ. 
+
+```
+curl http://34.133.138.45:8000/redirect?source=hello
 ```
 
+Does not run inside VM, just hangs.
 Also found that must use windows VM if want access to virutal display?
 But odd that I was given the option to add a virtual display, even though I added the ubuntu os. 
 
