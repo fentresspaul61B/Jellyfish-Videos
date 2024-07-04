@@ -155,4 +155,8 @@ the video.
 Use Infrastructure as code, so when the script is generalized, I can spin up 
 multiple different video generators, on different servers. 
 
+TODO: Need to deploy redirect service, in order to get a redirect URL. 
+Then add the logic into the pipeline to add dynmically add the redirect
+URL to the description.
+
 

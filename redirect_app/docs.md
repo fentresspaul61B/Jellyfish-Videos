@@ -108,3 +108,20 @@ Does not run inside VM, just hangs.
 Also found that must use windows VM if want access to virutal display?
 But odd that I was given the option to add a virtual display, even though I added the ubuntu os. 
 
+
+Need to connect host ports of host machine to connect to docker/web. 
+
+How to use Docker reverse proxy?
+Reverse proxy set up?
+
+Add another server for load balancing and is response.
+
+Run python server in docker image, then add another server 
+
+Transparent proxy. 
+
+Http -> python_server -> performat_server -> 
+Set local IP of docker with 8000
+
+Ngnix
+

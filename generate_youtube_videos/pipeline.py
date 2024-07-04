@@ -213,7 +213,8 @@ def pipeline(num_videos_to_generate: int = NUM_VIDEOS_TO_GENERATE) -> bool:
     RETURNS:
     bool
     """
-
+    # TODO: Make this within a temp dir, and save data to GCP after. Do not want
+    # any directories or files to be saved locally.
     # 0. Creating directories for script.
     ic("🪼 0. Creating directories for script.")
     # The long video path will be made into a parameter.

@@ -13,3 +13,4 @@ pytest
 fastapi
 uvicorn
 google-cloud-pubsub
+starlette

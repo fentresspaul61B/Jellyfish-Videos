@@ -11,6 +11,7 @@ import tempfile
 import os
 from icecream import ic
 from google.cloud import storage
+import httpx
 from generate_youtube_videos.audio.generation import generate_raw_audio_files
 from generate_youtube_videos.audio.operations import get_audio_duration
 from generate_youtube_videos.audio.operations import transcribe
@@ -18,34 +19,78 @@ from generate_youtube_videos.audio.operations import format_time_ass
 from generate_youtube_videos.audio.operations import generate_subtitle_file_ass
 from generate_youtube_videos.file_operations import pull_test_history_data_from_GCP
 from generate_youtube_videos.file_operations import download_audio_files_from_gcp
+from generate_youtube_videos.audio.generation import get_scripts
+from generate_youtube_videos.audio.generation import create_api_jobs
+from generate_youtube_videos.audio.generation import call_api
+from generate_youtube_videos.audio.generation import generate_raw_audio_files
+from generate_youtube_videos.audio.generation import SpeechJob
+from generate_youtube_videos.audio.generation import SpeechApiData
+import shutil
 from configs import TEST_DATA_BUCKET_GCP
 
 TESTING_DF = pull_test_history_data_from_GCP()
 
 
+def setup_test_environment() -> tuple:
+    temp_output_dir = tempfile.TemporaryDirectory()
+    temp_csv_path = os.path.join(temp_output_dir.name, 'Jellyfish.csv')
+    TESTING_DF.to_csv(temp_csv_path, index=False)
+    job = SpeechJob(temp_csv_path, temp_output_dir.name)
+    return temp_output_dir, temp_csv_path, job
+
+
+def setup_tests(function):
+    temp_output_dir, _, job = setup_test_environment()
+    passed = False
+    try:
+        scripts = function(job)
+        assert isinstance(scripts, tuple)
+        assert len(scripts) == 2
+        passed = True
+    finally:
+        shutil.rmtree(temp_output_dir.name)
+    return passed
+
+
+def test_get_scripts():
+    assert setup_tests(get_scripts)
+
+
+def test_create_api_jobs():
+    assert setup_tests(create_api_jobs)
+
+
+def test_call_api():
+    temp_output_dir, _, job = setup_test_environment()
+    try:
+        jobs = create_api_jobs(job)
+        response = call_api(jobs[0])
+        ic(response)
+        assert response
+    finally:
+        shutil.rmtree(temp_output_dir.name)
+
+
+# def test_generate_speech():
+#     temp_output_dir, _, job = setup_test_environment()
+#     try:
+#         jobs = create_api_jobs(job)
+#         response = generate_speech(jobs[0])
+#         ic(os.listdir(temp_output_dir.name))
+#         assert response
+#     finally:
+#         shutil.rmtree(temp_output_dir.name)
+
+
 def test_generate_raw_audio_files():
-    """DESCRIPTION:
-    Uses dataframe pulled from GCP. Converts that DF into a csv in a 
-    temp dir. Then tests if audio files can be generated from the CSV.
-
-    ARGS: None
-
-    RETURN: None
-
-    """
-    with tempfile.TemporaryDirectory() as temp_output_dir:
-
-        # Checking if generation works at all.
-        temp_csv_path = os.path.join(temp_output_dir, 'Jellyfish.csv')
-        TESTING_DF.to_csv(temp_csv_path, index=False)
-        result_dir = generate_raw_audio_files(temp_csv_path, temp_output_dir)
-        files = os.listdir(result_dir)
-        assert len(files) > 0, "No files generated in the output directory."
-
-        # Checking if correct num audio files generated.
-        audio_files = [file for file in files if file.endswith(".mp3")]
-        message = f"Generated {len(audio_files)}. Expected 2."
-        assert len(audio_files) == 2, message
+    temp_output_dir, temp_csv_path, job = setup_test_environment()
+    try:
+        result = generate_raw_audio_files(temp_csv_path, temp_output_dir.name)
+        files = [file for file in os.listdir(result) if file.endswith(".mp3")]
+        assert files
+        assert len(files) == 2
+    finally:
+        shutil.rmtree(temp_output_dir.name)
 
 
 def test_get_audio_duration():
