@@ -7,7 +7,7 @@ import inspect
 import logging
 
 
-def debug_log_decorator(func: Callable) -> Callable:
+def log_function_call(func: Callable) -> Callable:
 
     def wrapper(*args, **kwargs):
         # Get function name

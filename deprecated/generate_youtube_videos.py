@@ -1074,3 +1074,21 @@ if __name__ == "__main__":
     main()
 
 # f"[0:v]trim=duration={duration},fade=t=out:st={audio_length}:d={fade_duration}:color=black[v]",
+
+
+# ASS Header: TODO: Add this to configs file, the format part.
+# text += "[Script Info]\n"
+# text += "Title: Audio Transcription\n"
+# text += "ScriptType: v4.00+\n"
+# text += "WrapStyle: 0\n"
+# text += "PlayDepth: 0\n"
+# text += "Collisions: Normal\n"
+# text += "ScaledBorderAndShadow: yes\n"
+# text += "Original Script: Your Name\n"
+# text += "\n"
+# text += "[V4+ Styles]\n"
+# text += "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\n"
+# text += "Style: Default,Arial,12,&H003a98fc,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,0,0,2,10,10,10,1\n"
+# text += "\n"
+# text += "[Events]\n"
+# text += "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n"
