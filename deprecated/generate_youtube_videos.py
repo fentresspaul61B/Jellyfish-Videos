@@ -1092,3 +1092,54 @@ if __name__ == "__main__":
 # text += "\n"
 # text += "[Events]\n"
 # text += "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n"
+
+
+# def setup_test_environment() -> tuple:
+#     temp_output_dir = tempfile.TemporaryDirectory()
+#     temp_csv_path = os.path.join(temp_output_dir.name, 'Jellyfish.csv')
+#     TESTING_DF.to_csv(temp_csv_path, index=False)
+#     job = SpeechJob(temp_csv_path, temp_output_dir.name)
+#     return temp_output_dir, temp_csv_path, job
+
+
+# def setup_tests(function):
+#     temp_output_dir, _, job = setup_test_environment()
+#     passed = False
+#     try:
+#         scripts = function(job)
+#         assert isinstance(scripts, tuple)
+#         assert len(scripts) == 2
+#         passed = True
+#     finally:
+#         shutil.rmtree(temp_output_dir.name)
+#     return passed
+
+
+# def test_get_scripts():
+#     assert setup_tests(get_scripts)
+
+
+# def test_create_api_jobs():
+#     assert setup_tests(create_api_jobs)
+
+
+# def test_generate_speech():
+#     temp_output_dir, _, job = setup_test_environment()
+#     try:
+#         jobs = create_api_jobs(job)
+#         response = generate_speech(jobs[0])
+#         ic(os.listdir(temp_output_dir.name))
+#         assert response
+#     finally:
+#         shutil.rmtree(temp_output_dir.name)
+
+
+# def test_generate_raw_audio_files():
+#     temp_output_dir, temp_csv_path, job = setup_test_environment()
+#     try:
+#         result = generate_raw_audio_files(temp_csv_path, temp_output_dir.name)
+#         files = [file for file in os.listdir(result) if file.endswith(".mp3")]
+#         assert files
+#         assert len(files) == 2
+#     finally:
+#         shutil.rmtree(temp_output_dir.name)

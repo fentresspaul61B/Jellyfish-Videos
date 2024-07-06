@@ -1,11 +1,12 @@
-import subprocess
 from faster_whisper import WhisperModel
 from icecream import ic
-from helpers.decorators import log_function_call
+from audio.helpers import log_data
+from audio.helpers import run_ffmpeg_command
 
 SUBTITLES_TEMPLATE = "generate_youtube_videos/audio/subtitle_template.txt"
 
 
+@log_data
 def ffmpeg_duration_command(audio_path: str) -> list:
     """Formats a ffmpeg cli command."""
     command = [
@@ -18,19 +19,8 @@ def ffmpeg_duration_command(audio_path: str) -> list:
     return command
 
 
-def run_ffmpeg_command(command: list):
-    """Runs a ffmpeg command. Saves to audio path."""
-    result = subprocess.run(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
-    )
-    return result
-
-
 # TODO: Refactor this into smaller functions.
-@log_function_call
+@log_data
 def get_audio_duration(audio_path: str) -> float:
     """DESCRIPTION:
     Using ffmpeg to get audio duration in seconds.
@@ -48,12 +38,13 @@ def get_audio_duration(audio_path: str) -> float:
     return duration
 
 
+@log_data
 def extract_segments_and_info(audio: str) -> tuple:
     """"""
     return WhisperModel("small").transcribe(audio)
 
 
-@log_function_call
+@log_data
 def transcribe(audio: str) -> tuple:
     """DESCRIPTION:
     Converts audio into text segments.
@@ -69,6 +60,7 @@ def transcribe(audio: str) -> tuple:
     return language, list(segments)
 
 
+@log_data
 def format_time_ass(seconds: float) -> str:
     """DESCRIPTION:
     Formats time into subtitle format ASS.
@@ -86,22 +78,26 @@ def format_time_ass(seconds: float) -> str:
     return f"{hours:01d}:{minutes:02d}:{seconds:02d}.{centiseconds:02d}"
 
 
+@log_data
 def make_subtitle_filepath(dir: str, inference_id: str, language: str) -> str:
     """Composes the filepath for the subtitle file to be stored."""
     return f"{dir}/{inference_id}.{language}.ass"
 
 
+@log_data
 def txt_to_str(filepath: str) -> str:
     """Converts .txt file to a python string"""
     with open(filepath, 'r') as file:
         return file.read()
 
 
+@log_data
 def format_subtitle_line(start: float, end: float, segment) -> str:
     """Formats a single line to add to the subtitle file. """
     return f"Dialogue: 0,{start},{end},Default,,0,0,0,,{segment.text}\n"
 
 
+@log_data
 def format_segments(text: str, segments: list) -> str:
     """Iterates over segments, formating into correct ASS subtitle format."""
     for segment in segments:
@@ -111,7 +107,7 @@ def format_segments(text: str, segments: list) -> str:
     return text
 
 
-@log_function_call
+@log_data
 def generate_subtitle_file_ass(
         language: str,
         segments: list,

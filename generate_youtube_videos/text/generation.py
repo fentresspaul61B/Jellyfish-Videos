@@ -26,7 +26,7 @@ import uuid
 
 # Open AI used for generating video scripts, and text to speech.
 import openai
-from openai import OpenAI
+# from openai import OpenAI
 
 from configs import VIDEO_TOPICS
 from configs import QUESTIONS
@@ -41,6 +41,7 @@ from configs import GPT_ASSISTANT_ID
 from configs import PRICE_PER_TOKEN
 
 
+# TODO: Refactor (break into smaller functions)
 def create_video_script_prompts(num_prompts: int = 10) -> list:
     """DESCRIPTION:
     Creates combinations of questions and topics, which are used 

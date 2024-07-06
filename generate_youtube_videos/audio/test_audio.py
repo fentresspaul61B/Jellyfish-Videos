@@ -32,67 +32,79 @@ TESTING_DF = pull_test_history_data_from_GCP()
 
 
 def setup_test_environment() -> tuple:
+    """Sets up the testing env, with a temp output dir, the csv data which 
+    include the video scripts, as well as the speech generation job. This is 
+    used within a decorator function, to make for easier testing."""
     temp_output_dir = tempfile.TemporaryDirectory()
     temp_csv_path = os.path.join(temp_output_dir.name, 'Jellyfish.csv')
     TESTING_DF.to_csv(temp_csv_path, index=False)
-    job = SpeechJob(temp_csv_path, temp_output_dir.name)
-    return temp_output_dir, temp_csv_path, job
+    # job = SpeechJob(temp_csv_path, temp_output_dir.name)
+    return temp_output_dir, temp_csv_path
 
 
-def setup_tests(function):
-    temp_output_dir, _, job = setup_test_environment()
-    passed = False
-    try:
-        scripts = function(job)
-        assert isinstance(scripts, tuple)
-        assert len(scripts) == 2
-        passed = True
-    finally:
-        shutil.rmtree(temp_output_dir.name)
-    return passed
+def setup_kwargs(kwargs, temp_output_dir, temp_csv_path):
+    """Formating kwargs for decorator."""
+    kwargs['temp_output_dir'] = temp_output_dir
+    kwargs['temp_csv_path'] = temp_csv_path
+    # kwargs['job'] = job
+    return kwargs
 
 
-def test_get_scripts():
-    assert setup_tests(get_scripts)
+def setup_test(func):
+    """Add this decorator to set up testing env, with a temp output dir, 
+    the testing CSV file from GCP, Speech job to run the tests."""
+    def wrapper(*args, **kwargs):
+        temp_output_dir, temp_csv_path = setup_test_environment()
+        kwargs = setup_kwargs(kwargs, temp_output_dir, temp_csv_path)
+        result = func(*args, **kwargs)
+        temp_output_dir.cleanup()
+        return result
+    return wrapper
 
 
-def test_create_api_jobs():
-    assert setup_tests(create_api_jobs)
+def percent_difference(length_actual: int, length_result: int) -> float:
+    numerator = abs(length_actual - length_result)
+    denom = ((length_actual + length_result) / 2)
+    return numerator / denom * 100
 
 
-def test_call_api():
-    temp_output_dir, _, job = setup_test_environment()
-    try:
-        jobs = create_api_jobs(job)
-        response = call_api(jobs[0])
-        ic(response)
-        assert response
-    finally:
-        shutil.rmtree(temp_output_dir.name)
+@setup_test
+def test_get_scripts(temp_output_dir, temp_csv_path):
+    scripts = get_scripts(SpeechJob(temp_csv_path, temp_output_dir.name))
+    assert isinstance(scripts, tuple)
+    assert len(scripts) == 2
 
 
-# def test_generate_speech():
-#     temp_output_dir, _, job = setup_test_environment()
-#     try:
-#         jobs = create_api_jobs(job)
-#         response = generate_speech(jobs[0])
-#         ic(os.listdir(temp_output_dir.name))
-#         assert response
-#     finally:
-#         shutil.rmtree(temp_output_dir.name)
+@setup_test
+def test_create_api_jobs(temp_output_dir, temp_csv_path):
+    scripts = create_api_jobs(SpeechJob(temp_csv_path, temp_output_dir.name))
+    assert isinstance(scripts, tuple)
+    assert len(scripts) == 2
 
 
-def test_generate_raw_audio_files():
-    temp_output_dir, temp_csv_path, job = setup_test_environment()
-    try:
-        result = generate_raw_audio_files(temp_csv_path, temp_output_dir.name)
-        files = [file for file in os.listdir(result) if file.endswith(".mp3")]
-        assert files
-        assert len(files) == 2
-    finally:
-        shutil.rmtree(temp_output_dir.name)
+@setup_test
+def test_call_api(temp_output_dir, temp_csv_path):
+    jobs = create_api_jobs(SpeechJob(temp_csv_path, temp_output_dir.name))
+    response = call_api(jobs[0])
+    assert response
 
 
+@setup_test
+def test_decorator(temp_output_dir, temp_csv_path):
+    # Validate that the temp directory and CSV file are set up correctly
+    assert os.path.exists(temp_output_dir.name)
+    assert os.path.isfile(temp_csv_path)
+
+
+@setup_test
+def test_generate_raw_audio_files(temp_output_dir, temp_csv_path):
+    result = generate_raw_audio_files(temp_csv_path, temp_output_dir.name)
+    files = [file for file in os.listdir(result) if file.endswith(".mp3")]
+    assert files
+    assert len(files) == 2
+
+
+# TODO: Refactor and add new decorator if need to pull audio files.
 def test_get_audio_duration():
     """DESCRIPTION:
     Pulls 2 audio samples from GCP. Checks the length of the audio 
@@ -119,12 +131,6 @@ def test_get_audio_duration():
             pass
 
 
-def calculate_percent_difference(length_actual: int, length_result: int) -> float:
-    numerator = abs(length_actual - length_result)
-    denom = ((length_actual + length_result) / 2)
-    return numerator / denom * 100
-
-
 def test_transcribe():
     """DESCRIPTION:
     Test transcription accuracy.
@@ -149,7 +155,7 @@ def test_transcribe():
             num_characters_actual = len(video_transcript)
             num_characters_predicted = len(transcription)
 
-            percent_difference = calculate_percent_difference(
+            percent_difference = percent_difference(
                 num_characters_actual, num_characters_predicted)
 
             threshold = 10
