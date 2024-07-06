@@ -155,12 +155,12 @@ def test_transcribe():
             num_characters_actual = len(video_transcript)
             num_characters_predicted = len(transcription)
 
-            percent_difference = percent_difference(
+            precent_diff = percent_difference(
                 num_characters_actual, num_characters_predicted)
 
             threshold = 10
             message = f"% dif in num chars > {threshold}%."
-            assert percent_difference < threshold, message
+            assert precent_diff < threshold, message
 
             message = "Language transcribed is not english."
             assert language == "en", message
