@@ -1143,3 +1143,95 @@ if __name__ == "__main__":
 #         assert len(files) == 2
 #     finally:
 #         shutil.rmtree(temp_output_dir.name)
+
+
+# @log_data
+# def generate_raw_audio_files(script_csv_file: str, output_dir: str) -> str:
+#     """Generates raw speech from the text in scripts csv. Saves their audio
+#     to output dir. Starts by creating a speech job, and then runs API jobs based
+#     on the speech job."""
+#     job = SpeechJob(script_csv_file, output_dir)
+#     tuple(map(generate_speech, create_api_jobs(job)))
+#     return job.output_dir
+
+
+# @log_data
+# def create_api_jobs_r(job: SpeechJob) -> tuple:
+#     """Creates a tuple of API jobs, to generate audio from OpenAI API."""
+#     scripts = get_scripts(job)
+#     # A partial function, allows to hold one parameter constant, when mapping.
+#     create_job_partial = create_partial_function(create_api_job, job)
+#     return map_with_multiple_args(create_job_partial, scripts)
+
+
+# @log_data
+# def generate_speech(job: SpeechApiData):
+#     """Generates speech, saves to file."""
+#     return save_speech_to_file(job, call_api(job))
+
+
+# @log_data
+# def create_partial_function(function: Callable, parameter_to_hold) -> Callable:
+#     """A partial function, creates a function with one parameter held constant,
+#     when mapping."""
+#     return partial(function, parameter_to_hold)
+
+
+# @log_data
+# def create_api_job(
+#         job: SpeechJob,
+#         video_script: str,
+#         inference_id: str
+# ) -> SpeechApiData:
+#     """Creates an API job dataclass, which is used to call OpenAI API."""
+#     job = SpeechApiData(
+#         model="tts-1",
+#         voice=pick_random_voice(),
+#         input=video_script,
+#         inference_id=inference_id,
+#         speech_job=job
+#     )
+#     return job
+
+
+# @log_data
+# def create_api_jobs(
+#         job: SpeechJob,
+#         functions: NamedTuple = FUNCTIONS):
+#     """Creates a tuple of API jobs, to generate audio from OpenAI API."""
+#     create_api_job = functions.create_partial(
+#         function=create_api_job,
+#         job=job,
+#         pick_voice=functions.pick_voice
+#     )
+#     result = functions.map_with_multiple_args(
+#         create_api_job,
+#         functions.get_scripts(job)
+#     )
+#     return result
+
+
+# ------------------------------------------------------------------------------
+# CREATING FUNCTION BUNDLE
+
+
+# FunctionBundle = namedtuple(
+#     'FunctionBundle',
+#     [
+#         "pick_voice",
+#         "get_scripts",
+#         "create_partial",
+#         "map_with_multiple_args",
+#         "call_speech_api",
+#         "save_speech_to_file",
+#     ]
+# )
+
+# FUNCTIONS: NamedTuple = FunctionBundle(
+#     pick_voice=pick_random_voice,
+#     get_scripts=get_scripts,
+#     create_partial=create_partial_function,
+#     map_with_multiple_args=map_with_multiple_args,
+#     call_speech_api=call_api,
+#     save_speech_to_file=save_speech_to_file,
+# )

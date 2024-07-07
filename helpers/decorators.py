@@ -7,8 +7,8 @@ import inspect
 import logging
 
 
-def log_function_call(func: Callable) -> Callable:
-
+def log_data(func: Callable) -> Callable:
+    @wraps
     def wrapper(*args, **kwargs):
         # Get function name
         func_name = func.__name__

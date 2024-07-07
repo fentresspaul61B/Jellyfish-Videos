@@ -160,3 +160,82 @@ Then add the logic into the pipeline to add dynmically add the redirect
 URL to the description.
 
 
+No Side Effects: The function does not modify any external state or variables.
+Deterministic: The function returns the same output given the same input.
+No I/O Operations: The function does not perform any input/output operations such as reading from or writing to disk, or making network requests.
+
+
+
+Hire Order Functions:
+Separating concerns: Decouples fetching and processing logic.
+Improving testability: Makes it easier to inject mock functions for testing.
+Isolating side effects: Keeps the core logic pure and unaware of side effects.
+Promoting reusability and composition: Allows easy swapping of different implementations.
+
+
+## Examples
+```python
+# Incorrect Example:
+@log_data
+def pick_random_voice() -> str:
+    """Picks random voice option from openAI voices."""
+    return random.sample(GPT_VOICES, 1)[0]
+
+
+@log_data
+def create_api_job(job: SpeechJob, video_script: str, inference_id: str) -> SpeechApiData:
+    """Creates an API job dataclass, which is used to call OpenAI API."""
+    job = SpeechApiData(
+        model="tts-1",
+        # function is called directly inside.
+        voice=pick_random_voice(), 
+        input=video_script,
+        inference_id=inference_id,
+        speech_job=job
+    )
+    return job
+
+
+# Correct Example:
+@log_data
+def pick_random_voice() -> str:
+    """Picks random voice option from openAI voices."""
+    return random.sample(GPT_VOICES, 1)[0]
+
+
+@log_data
+def create_api_job(job: SpeechJob, video_script: str, inference_id: str, 
+voice_pick_function: Callable) -> SpeechApiData:
+    """Creates an API job dataclass, which is used to call OpenAI API."""
+    job = SpeechApiData(
+        model="tts-1",
+        # Function is instead an interchangeable parameter.
+        voice=voice_pick_function(),
+        input=video_script,
+        inference_id=inference_id,
+        speech_job=job
+    )
+    return job
+```
+
+This can be extanded by making immutable data objects (like named tuples) as arguments into other functions, which contain a number of functions, which can be used to compose more complex higher order functions.
+
+For each file it should roughly follow this pattern. 
+1. Define all the first order functions at the top of the file (those which do not call, accept, or return other functions). 
+2. Create a function bundle or some type of immutable pbject containing the first order functions.
+3. Define any higher order functions, using the function bundle as an argument where needed.
+
+Dev process:
+1. Start by writing monolithic file with functions which may be long, just to get an initial program working. 
+2. Start breaking the functions down into smaller functions where ever possible, and use those functions within other functions. 
+3. Seperate files if files are growing to long or complicated. 
+4. Seperate the first order functions from the higher order functions. 
+5. Create first order function groupings, which can be passed and used in the higher order functions. 
+6. Seperate out functions which are very general, to some type of utils or helper directory, such that they can be re used across the program. 
+7. Keep iterating over this process until all complex logic is composed of multiple swappable componoent functions. 
+8. Make sure to be writing tests for all functions along the way. 
+9. Observe the function input parameters which are unchagning and used throughout the functions in order to build the final result. Try to encapsulate these together in some type of dataclass or object, to pass throughout the program. 
+
+Ideally, all of the higher order functions would take the parameters function object, and the function bundle. These two abstractions should encapsulate all the need functionality and information to complete the task. 
+
+

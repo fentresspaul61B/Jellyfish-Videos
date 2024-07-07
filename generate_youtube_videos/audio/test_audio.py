@@ -34,7 +34,8 @@ TESTING_DF = pull_test_history_data_from_GCP()
 def setup_test_environment() -> tuple:
     """Sets up the testing env, with a temp output dir, the csv data which 
     include the video scripts, as well as the speech generation job. This is 
-    used within a decorator function, to make for easier testing."""
+    used within a decorator function, to make for easier testing.
+    Has I/O operations."""
     temp_output_dir = tempfile.TemporaryDirectory()
     temp_csv_path = os.path.join(temp_output_dir.name, 'Jellyfish.csv')
     TESTING_DF.to_csv(temp_csv_path, index=False)
@@ -43,16 +44,16 @@ def setup_test_environment() -> tuple:
 
 
 def setup_kwargs(kwargs, temp_output_dir, temp_csv_path):
-    """Formating kwargs for decorator."""
+    """Formating kwargs for decorator. Has no I/O operations."""
     kwargs['temp_output_dir'] = temp_output_dir
     kwargs['temp_csv_path'] = temp_csv_path
-    # kwargs['job'] = job
     return kwargs
 
 
 def setup_test(func):
     """Add this decorator to set up testing env, with a temp output dir, 
-    the testing CSV file from GCP, Speech job to run the tests."""
+    the testing CSV file from GCP, Speech job to run the tests.
+    Has I/O operations."""
     def wrapper(*args, **kwargs):
         temp_output_dir, temp_csv_path = setup_test_environment()
         kwargs = setup_kwargs(kwargs, temp_output_dir, temp_csv_path)
@@ -63,6 +64,7 @@ def setup_test(func):
 
 
 def percent_difference(length_actual: int, length_result: int) -> float:
+    """Has no I/O operations."""
     numerator = abs(length_actual - length_result)
     denom = ((length_actual + length_result) / 2)
     return numerator / denom * 100
@@ -70,6 +72,7 @@ def percent_difference(length_actual: int, length_result: int) -> float:
 
 @setup_test
 def test_get_scripts(temp_output_dir, temp_csv_path):
+    "Has I/O operations."
     scripts = get_scripts(SpeechJob(temp_csv_path, temp_output_dir.name))
     assert isinstance(scripts, tuple)
     assert len(scripts) == 2
@@ -77,6 +80,7 @@ def test_get_scripts(temp_output_dir, temp_csv_path):
 
 @setup_test
 def test_create_api_jobs(temp_output_dir, temp_csv_path):
+    "Has I/O operations."
     scripts = create_api_jobs(SpeechJob(temp_csv_path, temp_output_dir.name))
     assert isinstance(scripts, tuple)
     assert len(scripts) == 2
@@ -84,6 +88,7 @@ def test_create_api_jobs(temp_output_dir, temp_csv_path):
 
 @setup_test
 def test_call_api(temp_output_dir, temp_csv_path):
+    "Has I/O operations."
     jobs = create_api_jobs(SpeechJob(temp_csv_path, temp_output_dir.name))
     response = call_api(jobs[0])
     assert response
@@ -91,6 +96,7 @@ def test_call_api(temp_output_dir, temp_csv_path):
 
 @setup_test
 def test_decorator(temp_output_dir, temp_csv_path):
+    "Has I/O operations."
     # Validate that the temp directory and CSV file are set up correctly
     assert os.path.exists(temp_output_dir.name)
     assert os.path.isfile(temp_csv_path)
@@ -98,7 +104,9 @@ def test_decorator(temp_output_dir, temp_csv_path):
 
 @setup_test
 def test_generate_raw_audio_files(temp_output_dir, temp_csv_path):
-    result = generate_raw_audio_files(temp_csv_path, temp_output_dir.name)
+    "Has I/O operations."
+    job = SpeechJob(temp_csv_path, temp_output_dir.name)
+    result = generate_raw_audio_files(job)
     files = [file for file in os.listdir(result) if file.endswith(".mp3")]
     assert files
     assert len(files) == 2
@@ -108,7 +116,7 @@ def test_generate_raw_audio_files(temp_output_dir, temp_csv_path):
 def test_get_audio_duration():
     """DESCRIPTION:
     Pulls 2 audio samples from GCP. Checks the length of the audio 
-    files. Makes sure the length is long enough.
+    files. Makes sure the length is long enough. Has I/O operations.
 
     ARGS: None
 
@@ -133,7 +141,7 @@ def test_get_audio_duration():
 
 def test_transcribe():
     """DESCRIPTION:
-    Test transcription accuracy.
+    Test transcription accuracy. Has I/O operations.
 
     ARGS: None
 
@@ -171,7 +179,7 @@ def test_format_time_ass():
     """DESCRIPTION:
     Tests multiple cases for formatting the time strings used to 
     generate subtitles in ASS format. Time is in the form of hours, 
-    minutes, seconds, and centiseconds
+    minutes, seconds, and centiseconds. 
 
     3661.25 seconds -> "1:01:01.00"
     Explanation:
@@ -180,6 +188,7 @@ def test_format_time_ass():
 
     So we have 3600 + 60 + 1.00 which makes 1:01:01.00 in english is
     1 hour, 1 minute, and 1 second, with 0 centi seconds.
+    Has I/O operations.
 
     Note:
     The function rounds centi seconds, so they are not included in the
@@ -209,7 +218,7 @@ def test_format_time_ass():
 
 
 def test_generate_subtitle_file_ass():
-    """DESCRIPTION:
+    """DESCRIPTION: Has I/O operations.
 
     ARGS: None
 
