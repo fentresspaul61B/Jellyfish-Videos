@@ -1235,3 +1235,129 @@ if __name__ == "__main__":
 #     call_speech_api=call_api,
 #     save_speech_to_file=save_speech_to_file,
 # )
+
+
+# @higher_order_function
+# def generate_raw_audio_files(
+#         job: SpeechApiData,
+#         get_scripts: Callable = get_scripts,
+#         create_api_job: Callable = create_api_job,
+#         map_with_multiple_args: Callable = map_with_multiple_args,
+#         pick_random_voice: Callable = pick_random_voice,
+#         generate_speech: Callable = generate_speech,
+#         create_api_jobs: Callable = create_api_jobs,
+#         create_partial_function: Callable = create_partial_function,
+#         save_speech_to_file: Callable = save_speech_to_file,
+#         call_api: Callable = call_api) -> str:
+#     """Generates raw speech from the text in scripts csv. Saves their audio
+#     to output dir. Starts by creating a speech job, and then runs API jobs based
+#     on the speech job."""
+
+#     # Leaving job parameter open, freezing the rest.
+#     partial_generate_speech_func = create_partial_function(
+#         generate_speech,
+#         save_to_file=save_speech_to_file,
+#         call_api=call_api
+#     )
+
+#     # Leaving job parameter open, freezing the rest.
+#     partial_create_api_jobs = create_partial_function(
+#         create_api_jobs,
+#         get_scripts=get_scripts,
+#         create_partial_function=create_partial_function,
+#         create_api_job=create_api_job,
+#         map_with_multiple_args=map_with_multiple_args,
+#         pick_random_voice=pick_random_voice
+#     )
+
+#     # Applies speech generation to all API jobs in the iterable.
+#     tuple(map(partial_generate_speech_func, partial_create_api_jobs(job)))
+#     return job.output_dir
+
+
+# GenerateAudioFunctions = namedtuple('GenerateAudioFunctions', [
+#     'GET_SCRIPTS',
+#     'CREATE_API_JOB',
+#     'MAP_WITH_MULTIPLE_ARGS',
+#     'PICK_RANDOM_VOICE',
+#     'GENERATE_SPEECH',
+#     'CREATE_API_JOBS',
+#     'CREATE_PARTIAL_FUNCTION',
+#     'SAVE_SPEECH_TO_FILE',
+#     'CALL_API'
+# ])
+
+# GENERATE_AUDIO_FUNCTIONS = GenerateAudioFunctions(
+#     GET_SCRIPTS=get_scripts,
+#     CREATE_API_JOB=create_api_job,
+#     MAP_WITH_MULTIPLE_ARGS=map_with_multiple_args,
+#     PICK_RANDOM_VOICE=pick_random_voice,
+#     GENERATE_SPEECH=generate_speech,
+#     CREATE_API_JOBS=create_api_jobs,
+#     CREATE_PARTIAL_FUNCTION=create_partial_function,
+#     SAVE_SPEECH_TO_FILE=save_speech_to_file,
+#     CALL_API=call_api
+# )
+
+
+# GENERATE_AUDIO_FUNCTIONS = {
+#     "GET_SCRIPTS": get_scripts,
+#     "CREATE_API_JOB": create_api_job,
+#     "MAP_WITH_MULTIPLE_ARGS": map_with_multiple_args,
+#     "PICK_RANDOM_VOICE": pick_random_voice,
+#     "GENERATE_SPEECH": generate_speech,
+#     "CREATE_API_JOBS": create_api_jobs,
+#     "CREATE_PARTIAL_FUNCTION": create_partial_function,
+#     "SAVE_SPEECH_TO_FILE": save_speech_to_file,
+#     "CALL_API": call_api
+# }
+
+
+# @higher_order_function
+# def compose_generate_speech_func(
+#         functions: NamedTuple = GENERATE_AUDIO_FUNCTIONS) -> partial:
+#     """"""
+#     partial_func = functions.CREATE_PARTIAL_FUNCTION(
+#         functions.GENERATE_SPEECH,
+#         save_to_file=functions.SAVE_SPEECH_TO_FILE,
+#         call_api=functions.CALL_API
+#     )
+#     return partial_func
+
+
+# @higher_order_function
+# def compose_create_api_jobs_func(
+#         functions: NamedTuple = generate_audio_functions) -> partial:
+#     """"""
+#     partial_func = functions.CREATE_PARTIAL_FUNCTION(
+#         functions.CREATE_API_JOBS,
+#         get_scripts=functions.GET_SCRIPTS,
+#         create_partial_function=functions.CREATE_PARTIAL_FUNCTION,
+#         create_api_job=functions.CREATE_API_JOB,
+#         map_with_multiple_args=functions.MAP_WITH_MULTIPLE_ARGS,
+#         pick_random_voice=functions.PICK_RANDOM_VOICE
+#     )
+#     return partial_func
+
+
+# FIRST_ORDER_FUNCTIONS = MappingProxyType(
+#     {
+#         "GET_SCRIPTS": get_scripts,
+#         "MAP_WITH_MULTIPLE_ARGS": map_with_multiple_args,
+#         "PICK_RANDOM_VOICE": pick_random_voice,
+#         "CREATE_PARTIAL_FUNCTION": create_partial_function,
+#         "SAVE_SPEECH_TO_FILE": save_speech_to_file,
+#         "CALL_API": call_api
+#     }
+# )
+
+
+# # Example usage
+# if __name__ == "__main__":
+#     bucket_name = 'videos-with-subtitles'
+#     source_file_name = '/Users/paulfentress/Desktop/Jellyfish/VIDEOS_WITH_SUBTITLES'
+#     destination_blob_name = 'destination-filename-in-gcs'
+
+#     uploaded_file_url = upload_to_gcs(
+#         bucket_name, source_file_name, destination_blob_name)
+#     print(f"File uploaded to {uploaded_file_url}")

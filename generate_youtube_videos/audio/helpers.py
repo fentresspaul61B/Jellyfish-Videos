@@ -1,36 +1,41 @@
+from types import MappingProxyType
 import subprocess
 import time
 from datetime import datetime
-# from functools import wraps
 from typing import Callable
 from icecream import ic
 import inspect
-# import logging
 from google.cloud import storage
-import tempfile
-import os
 from functools import wraps
 from colorama import init, Fore, Style
 # from file_operations import pull_test_history_data_from_GCP
+# import tempfile
+# import os
+# import logging
+# from functools import wraps
 
 # Define ANSI escape codes for colors
 
 
-class TextColors:
-    RED = '\033[91m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    MAGENTA = '\033[95m'
-    CYAN = '\033[96m'
-    WHITE = '\033[97m'
-    RESET = '\033[0m'
+COLOR_CODES = MappingProxyType(
+    {
+        "RED": "\033[91m",
+        "GREEN": "\033[92m",
+        "YELLOW": "\033[93m",
+        "BLUE": "\033[94m",
+        "MAGENTA": "\033[95m",
+        "CYAN": "\033[96m",
+        "WHITE": "\033[97m",
+        "RESET": "\033[0m"
+    }
+)
 
 
 # Initialize colorama
 init(autoreset=True)
 
 
+# TODO: Refactor this function (break into smaller functions).
 def upload_to_gcs(bucket_name, source_file_name, destination_blob_name):
     """
     Uploads a file to Google Cloud Storage
@@ -57,26 +62,34 @@ def upload_to_gcs(bucket_name, source_file_name, destination_blob_name):
     return f"gs://{bucket_name}/{destination_blob_name}"
 
 
-# Example usage
-if __name__ == "__main__":
-    bucket_name = 'videos-with-subtitles'
-    source_file_name = '/Users/paulfentress/Desktop/Jellyfish/VIDEOS_WITH_SUBTITLES'
-    destination_blob_name = 'destination-filename-in-gcs'
-
-    uploaded_file_url = upload_to_gcs(
-        bucket_name, source_file_name, destination_blob_name)
-    print(f"File uploaded to {uploaded_file_url}")
+def get_function_name(func: Callable) -> str:
+    return func.__name__
 
 
+def create_time_stamp() -> datetime:
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def get_time_now() -> time:
+    return time.time()
+
+
+def print_in_color(message: str, color: str) -> None:
+    """Prints message in color."""
+    print(color + message)
+
+
+def print_formatted_func_name(
+        func_name: str, color: str = COLOR_CODES["CYAN"]) -> None:
+    print_in_color(f"Function Name: {func_name}", color)
+
+
+# TODO: Refactor this function (break into smaller functions).
 def wrapper_helper(func, *args, **kwargs):
-    # Get function name
-    func_name = func.__name__
-    # Timestamp of when the function was called
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    # Start time
-    start_time = time.time()
-    print(Fore.CYAN + f"Function Name: {func_name}")
+    func_name = get_function_name(func)
+    timestamp = create_time_stamp()
+    start_time = get_time_now()
+    print_formatted_func_name(func_name=func_name)
     frame = inspect.currentframe()
     outer_frames = inspect.getouterframes(frame)
     file_path = outer_frames[1].filename
@@ -119,14 +132,15 @@ def wrapper_helper(func, *args, **kwargs):
     return result
 
 
-def log_data(func: Callable) -> Callable:
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        return wrapper_helper(func, *args, **kwargs)
-    return wrapper
+# def log_data(func: Callable) -> Callable:
+#     @wraps(func)
+#     def wrapper(*args, **kwargs):
+#         return wrapper_helper(func, *args, **kwargs)
+#     return wrapper
 
 
 def first_order_function(func: Callable) -> Callable:
+    """Decorator used print useful messages for first order functions."""
     @wraps(func)
     def wrapper(*args, **kwargs):
         print()
@@ -136,6 +150,7 @@ def first_order_function(func: Callable) -> Callable:
 
 
 def higher_order_function(func: Callable) -> Callable:
+    """Decorator used print useful messages for higher order functions."""
     @wraps(func)
     def wrapper(*args, **kwargs):
         print()
@@ -144,6 +159,7 @@ def higher_order_function(func: Callable) -> Callable:
     return wrapper
 
 
+@first_order_function
 def run_ffmpeg_command(command: list):
     """Runs a ffmpeg command. Saves to audio path."""
     result = subprocess.run(
@@ -153,3 +169,21 @@ def run_ffmpeg_command(command: list):
         text=True
     )
     return result
+
+
+def main():
+    bucket_name = 'videos-with-subtitles'
+    source_file_name = '/Users/paulfentress/Desktop/Jellyfish/VIDEOS_WITH_SUBTITLES'
+    destination_blob_name = 'destination-filename-in-gcs'
+
+    uploaded_file_url = upload_to_gcs(
+        bucket_name,
+        source_file_name,
+        destination_blob_name
+    )
+    print(f"File uploaded to {uploaded_file_url}")
+
+
+# Example usage
+if __name__ == "__main__":
+    main()

@@ -1,10 +1,9 @@
-"""
-1. Seperate out all functions which do not call other functions.
-2. Define a bundle of those modularized functions.
-3. Define any other functions which are composed of muliple functions
-after the bundle.
+"""Generates speech from text in mp3 form using open AI API. Saves audio to an 
+output dir. The text is extract from a CSV file. This audio is later merged with
+video and subtitles.
 """
 
+from types import MappingProxyType
 import pandas as pd
 import random
 from icecream import ic
@@ -13,13 +12,12 @@ from generate_youtube_videos.configs import GPT_VOICES
 from dataclasses import dataclass
 from typing import Iterable
 from typing import Callable
-# from typing import NamedTuple
 import httpx
 from functools import partial
-from audio.helpers import log_data
 from audio.helpers import first_order_function
 from audio.helpers import higher_order_function
 # from collections import namedtuple
+# from typing import NamedTuple
 
 
 @dataclass(frozen=True)
@@ -33,12 +31,8 @@ class SpeechApiData:
     model: str
     voice: str
     input: str
-    inference_id: str  # Instead of holdin
+    inference_id: str
     speech_job: SpeechJob
-
-
-# ------------------------------------------------------------------------------
-# FIRST ORDER FUNCTIONS
 
 
 @first_order_function
@@ -88,10 +82,6 @@ def save_speech_to_file(
     return file_path
 
 
-# ------------------------------------------------------------------------------
-# HIGHER ORDER ORDER FUNCTIONS
-
-
 @higher_order_function
 def create_api_job(
         job: SpeechJob,
@@ -135,41 +125,56 @@ def generate_speech(
     return save_to_file(job, call_api(job))
 
 
+# Using an immutable dictionary to keep data frozen.
+GENERATE_AUDIO_FUNCTIONS = MappingProxyType(
+    {
+        "GET_SCRIPTS": get_scripts,
+        "CREATE_API_JOB": create_api_job,
+        "MAP_WITH_MULTIPLE_ARGS": map_with_multiple_args,
+        "PICK_RANDOM_VOICE": pick_random_voice,
+        "GENERATE_SPEECH": generate_speech,
+        "CREATE_API_JOBS": create_api_jobs,
+        "CREATE_PARTIAL_FUNCTION": create_partial_function,
+        "SAVE_SPEECH_TO_FILE": save_speech_to_file,
+        "CALL_API": call_api
+    }
+)
+
+
+@higher_order_function
+def compose_generate_speech(
+        functions: MappingProxyType = GENERATE_AUDIO_FUNCTIONS) -> partial:
+    """Composes the generate speech partial functio."""
+    partial_func: partial = functions["CREATE_PARTIAL_FUNCTION"](
+        functions["GENERATE_SPEECH"],
+        save_to_file=functions["SAVE_SPEECH_TO_FILE"],
+        call_api=functions["CALL_API"]
+    )
+    return partial_func
+
+
+@higher_order_function
+def compose_create_api_jobs(
+        functions: MappingProxyType = GENERATE_AUDIO_FUNCTIONS) -> partial:
+    """Composes the create api jobs partial function."""
+    partial_func: partial = functions["CREATE_PARTIAL_FUNCTION"](
+        functions["CREATE_API_JOBS"],
+        get_scripts=functions["GET_SCRIPTS"],
+        create_partial_function=functions["CREATE_PARTIAL_FUNCTION"],
+        create_api_job=functions["CREATE_API_JOB"],
+        map_with_multiple_args=functions["MAP_WITH_MULTIPLE_ARGS"],
+        pick_random_voice=functions["PICK_RANDOM_VOICE"]
+    )
+    return partial_func
+
+
 @higher_order_function
 def generate_raw_audio_files(
         job: SpeechApiData,
-        get_scripts: Callable = get_scripts,
-        create_api_job: Callable = create_api_job,
-        map_with_multiple_args: Callable = map_with_multiple_args,
-        pick_random_voice: Callable = pick_random_voice,
-        generate_speech: Callable = generate_speech,
-        create_api_jobs: Callable = create_api_jobs,
-        create_partial_function: Callable = create_partial_function,
-        save_speech_to_file: Callable = save_speech_to_file,
-        call_api: Callable = call_api) -> str:
-    """Generates raw speech from the text in scripts csv. Saves their audio
-    to output dir. Starts by creating a speech job, and then runs API jobs based
-    on the speech job."""
-
-    # Leaving job parameter open, freezing the rest.
-    partial_generate_speech_func = create_partial_function(
-        generate_speech,
-        save_to_file=save_speech_to_file,
-        call_api=call_api
-    )
-
-    # Leaving job parameter open, freezing the rest.
-    partial_create_api_jobs = create_partial_function(
-        create_api_jobs,
-        get_scripts=get_scripts,
-        create_partial_function=create_partial_function,
-        create_api_job=create_api_job,
-        map_with_multiple_args=map_with_multiple_args,
-        pick_random_voice=pick_random_voice
-    )
-
-    # Applies speech generation to all API jobs in the iterable.
-    tuple(map(partial_generate_speech_func, partial_create_api_jobs(job)))
+        generate_speech_func: Callable = compose_generate_speech,
+        create_api_jobs_func: Callable = compose_create_api_jobs) -> str:
+    """Generates speech from the text in csv. Saves audio to output dir."""
+    tuple(map(generate_speech_func(), create_api_jobs_func()(job)))
     return job.output_dir
 
 
