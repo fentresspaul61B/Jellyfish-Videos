@@ -13,7 +13,7 @@ with open('./secrets.json', 'r') as file:
     secrets = json.load(file)
 
 # Unpacking and assigning configurations.
-GPT_VOICES = configs["GPT_VOICES"]
+GPT_VOICES = tuple(configs["GPT_VOICES"])
 GPT_BASE_MODEL = configs["GPT_BASE_MODEL"]
 VIDEO_TOPICS = configs["VIDEO_TOPICS"]
 QUESTION_RULES = configs["QUESTION_RULES"]

@@ -1160,8 +1160,8 @@ if __name__ == "__main__":
 #     """Creates a tuple of API jobs, to generate audio from OpenAI API."""
 #     scripts = get_scripts(job)
 #     # A partial function, allows to hold one parameter constant, when mapping.
-#     create_job_partial = create_partial_function(create_api_job, job)
-#     return map_with_multiple_args(create_job_partial, scripts)
+#     create_job_partial = _create_partial_function(create_api_job, job)
+#     return _map_with_multiple_args(create_job_partial, scripts)
 
 
 # @log_data
@@ -1171,7 +1171,7 @@ if __name__ == "__main__":
 
 
 # @log_data
-# def create_partial_function(function: Callable, parameter_to_hold) -> Callable:
+# def _create_partial_function(function: Callable, parameter_to_hold) -> Callable:
 #     """A partial function, creates a function with one parameter held constant,
 #     when mapping."""
 #     return partial(function, parameter_to_hold)
@@ -1204,7 +1204,7 @@ if __name__ == "__main__":
 #         job=job,
 #         pick_voice=functions.pick_voice
 #     )
-#     result = functions.map_with_multiple_args(
+#     result = functions._map_with_multiple_args(
 #         create_api_job,
 #         functions.get_scripts(job)
 #     )
@@ -1221,7 +1221,7 @@ if __name__ == "__main__":
 #         "pick_voice",
 #         "get_scripts",
 #         "create_partial",
-#         "map_with_multiple_args",
+#         "_map_with_multiple_args",
 #         "call_speech_api",
 #         "save_speech_to_file",
 #     ]
@@ -1230,8 +1230,8 @@ if __name__ == "__main__":
 # FUNCTIONS: NamedTuple = FunctionBundle(
 #     pick_voice=pick_random_voice,
 #     get_scripts=get_scripts,
-#     create_partial=create_partial_function,
-#     map_with_multiple_args=map_with_multiple_args,
+#     create_partial=_create_partial_function,
+#     _map_with_multiple_args=_map_with_multiple_args,
 #     call_speech_api=call_api,
 #     save_speech_to_file=save_speech_to_file,
 # )
@@ -1242,11 +1242,11 @@ if __name__ == "__main__":
 #         job: SpeechApiData,
 #         get_scripts: Callable = get_scripts,
 #         create_api_job: Callable = create_api_job,
-#         map_with_multiple_args: Callable = map_with_multiple_args,
+#         _map_with_multiple_args: Callable = _map_with_multiple_args,
 #         pick_random_voice: Callable = pick_random_voice,
 #         generate_speech: Callable = generate_speech,
 #         create_api_jobs: Callable = create_api_jobs,
-#         create_partial_function: Callable = create_partial_function,
+#         _create_partial_function: Callable = _create_partial_function,
 #         save_speech_to_file: Callable = save_speech_to_file,
 #         call_api: Callable = call_api) -> str:
 #     """Generates raw speech from the text in scripts csv. Saves their audio
@@ -1254,19 +1254,19 @@ if __name__ == "__main__":
 #     on the speech job."""
 
 #     # Leaving job parameter open, freezing the rest.
-#     partial_generate_speech_func = create_partial_function(
+#     partial_generate_speech_func = _create_partial_function(
 #         generate_speech,
 #         save_to_file=save_speech_to_file,
 #         call_api=call_api
 #     )
 
 #     # Leaving job parameter open, freezing the rest.
-#     partial_create_api_jobs = create_partial_function(
+#     partial_create_api_jobs = _create_partial_function(
 #         create_api_jobs,
 #         get_scripts=get_scripts,
-#         create_partial_function=create_partial_function,
+#         _create_partial_function=_create_partial_function,
 #         create_api_job=create_api_job,
-#         map_with_multiple_args=map_with_multiple_args,
+#         _map_with_multiple_args=_map_with_multiple_args,
 #         pick_random_voice=pick_random_voice
 #     )
 
@@ -1278,11 +1278,11 @@ if __name__ == "__main__":
 # GenerateAudioFunctions = namedtuple('GenerateAudioFunctions', [
 #     'GET_SCRIPTS',
 #     'CREATE_API_JOB',
-#     'MAP_WITH_MULTIPLE_ARGS',
+#     '_map_with_multiple_args',
 #     'PICK_RANDOM_VOICE',
 #     'GENERATE_SPEECH',
 #     'CREATE_API_JOBS',
-#     'CREATE_PARTIAL_FUNCTION',
+#     '_create_partial_function',
 #     'SAVE_SPEECH_TO_FILE',
 #     'CALL_API'
 # ])
@@ -1290,11 +1290,11 @@ if __name__ == "__main__":
 # GENERATE_AUDIO_FUNCTIONS = GenerateAudioFunctions(
 #     GET_SCRIPTS=get_scripts,
 #     CREATE_API_JOB=create_api_job,
-#     MAP_WITH_MULTIPLE_ARGS=map_with_multiple_args,
+#     _map_with_multiple_args=_map_with_multiple_args,
 #     PICK_RANDOM_VOICE=pick_random_voice,
 #     GENERATE_SPEECH=generate_speech,
 #     CREATE_API_JOBS=create_api_jobs,
-#     CREATE_PARTIAL_FUNCTION=create_partial_function,
+#     _create_partial_function=_create_partial_function,
 #     SAVE_SPEECH_TO_FILE=save_speech_to_file,
 #     CALL_API=call_api
 # )
@@ -1303,21 +1303,21 @@ if __name__ == "__main__":
 # GENERATE_AUDIO_FUNCTIONS = {
 #     "GET_SCRIPTS": get_scripts,
 #     "CREATE_API_JOB": create_api_job,
-#     "MAP_WITH_MULTIPLE_ARGS": map_with_multiple_args,
+#     "_map_with_multiple_args": _map_with_multiple_args,
 #     "PICK_RANDOM_VOICE": pick_random_voice,
 #     "GENERATE_SPEECH": generate_speech,
 #     "CREATE_API_JOBS": create_api_jobs,
-#     "CREATE_PARTIAL_FUNCTION": create_partial_function,
+#     "_create_partial_function": _create_partial_function,
 #     "SAVE_SPEECH_TO_FILE": save_speech_to_file,
 #     "CALL_API": call_api
 # }
 
 
 # @higher_order_function
-# def compose_generate_speech_func(
+# def _compose_generate_speech_func(
 #         functions: NamedTuple = GENERATE_AUDIO_FUNCTIONS) -> partial:
 #     """"""
-#     partial_func = functions.CREATE_PARTIAL_FUNCTION(
+#     partial_func = functions._create_partial_function(
 #         functions.GENERATE_SPEECH,
 #         save_to_file=functions.SAVE_SPEECH_TO_FILE,
 #         call_api=functions.CALL_API
@@ -1326,15 +1326,15 @@ if __name__ == "__main__":
 
 
 # @higher_order_function
-# def compose_create_api_jobs_func(
+# def _compose_create_api_jobs_func(
 #         functions: NamedTuple = generate_audio_functions) -> partial:
 #     """"""
-#     partial_func = functions.CREATE_PARTIAL_FUNCTION(
+#     partial_func = functions._create_partial_function(
 #         functions.CREATE_API_JOBS,
 #         get_scripts=functions.GET_SCRIPTS,
-#         create_partial_function=functions.CREATE_PARTIAL_FUNCTION,
+#         _create_partial_function=functions._create_partial_function,
 #         create_api_job=functions.CREATE_API_JOB,
-#         map_with_multiple_args=functions.MAP_WITH_MULTIPLE_ARGS,
+#         _map_with_multiple_args=functions._map_with_multiple_args,
 #         pick_random_voice=functions.PICK_RANDOM_VOICE
 #     )
 #     return partial_func
@@ -1343,9 +1343,9 @@ if __name__ == "__main__":
 # FIRST_ORDER_FUNCTIONS = MappingProxyType(
 #     {
 #         "GET_SCRIPTS": get_scripts,
-#         "MAP_WITH_MULTIPLE_ARGS": map_with_multiple_args,
+#         "_map_with_multiple_args": _map_with_multiple_args,
 #         "PICK_RANDOM_VOICE": pick_random_voice,
-#         "CREATE_PARTIAL_FUNCTION": create_partial_function,
+#         "_create_partial_function": _create_partial_function,
 #         "SAVE_SPEECH_TO_FILE": save_speech_to_file,
 #         "CALL_API": call_api
 #     }
@@ -1383,12 +1383,12 @@ if __name__ == "__main__":
 
 
 # TODO: Rename. Is this really generating speech? Can this be more specific?
-# This should be renamed: run_open_ai_api_tts_job_and_save_to_mp3 or make_open_ai_tts_request
+# This should be renamed: _run_open_ai_api_tts_job_and_save_to_mp3 or make_open_ai_tts_request
 # @higher_order_function
 # def generate_speech(
 #         job: SpeechApiData,
-#         save_to_file: Callable = save_open_ai_tts_api_response_to_mp3,
-#         call_api: Callable = call_open_ai_tts_api) -> str:
+#         save_to_file: Callable = _save_open_ai_tts_api_response_to_mp3,
+#         call_api: Callable = _call_open_ai_tts_api) -> str:
 #     """Calls speech api, and saves response to file as mp3."""
 #     return save_to_file(job, call_api(job))
 
@@ -1401,3 +1401,38 @@ if __name__ == "__main__":
 #     file_path = f"{job.speech_job.output_dir}/{job.inference_id}.mp3"
 #     api_response.stream_to_file(file_path)
 #     return file_path
+
+
+# TODO: Explain the intention and purpose of this abstraction. I think it may be
+# confusing that there are two dataclasses that are both considered jobs, but
+# one is meant to be iterated over and other is held static.
+
+
+# TODO: This could be broken down into two functions. The first one is just
+# getting the rows from a csv file. The second would be specific to this context
+# which is to format them into an iterable used for generating speech. But does
+# that abstraction add anything? Its hard to say. Maybe if I need to do that
+# action again somewhere else its worth it. But if its only ever done once, then
+# its not.
+
+
+# # TODO: Rename. This name is not specific enough. create_open_ai_tts_job.
+# @higher_order_function
+# def create_api_job(
+#         job: SpeechJob,
+#         video_script: str,
+#         inference_id: str,
+#         pick_random_voice: Callable = pick_random_voice) -> SpeechApiData:
+#     """Creates an API job dataclass, which is used to call OpenAI API."""
+#     job = SpeechApiData(
+#         model="tts-1",
+#         voice=pick_random_voice(),
+#         input=video_script,
+#         inference_id=inference_id,
+#         speech_job=job
+#     )
+#     return job
+
+
+# TODO: Rename? I am not sure if it is obvious enough, that all the code leading
+# up to this point, lead to this one core function.

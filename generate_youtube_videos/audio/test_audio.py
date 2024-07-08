@@ -19,10 +19,11 @@ from generate_youtube_videos.audio.operations import format_time_ass
 from generate_youtube_videos.audio.operations import generate_subtitle_file_ass
 from generate_youtube_videos.file_operations import pull_test_history_data_from_GCP
 from generate_youtube_videos.file_operations import download_audio_files_from_gcp
-from generate_youtube_videos.audio.generation import get_script_and_id_tuples_from_csv
-from generate_youtube_videos.audio.generation import create_open_ai_api_tts_jobs
-from generate_youtube_videos.audio.generation import call_open_ai_tts_api
+from generate_youtube_videos.audio.generation import _get_script_and_id_tuples_from_csv
+from generate_youtube_videos.audio.generation import _create_open_ai_api_tts_jobs
+from generate_youtube_videos.audio.generation import _call_open_ai_tts_api
 from generate_youtube_videos.audio.generation import generate_raw_audio_files
+from generate_youtube_videos.audio.generation import _pick_random_voice
 from generate_youtube_videos.audio.generation import SpeechJob
 from generate_youtube_videos.audio.generation import SpeechApiData
 import shutil
@@ -70,10 +71,18 @@ def percent_difference(length_actual: int, length_result: int) -> float:
     return numerator / denom * 100
 
 
+def test__pick_random_voice():
+    from generate_youtube_videos.configs import GPT_VOICES
+    voice = _pick_random_voice()
+    assert voice
+    assert isinstance(voice, str)
+    assert isinstance(GPT_VOICES, tuple)
+
+
 @setup_test
 def test_get_scripts(temp_output_dir, temp_csv_path):
     "Has I/O operations."
-    scripts = get_script_and_id_tuples_from_csv(
+    scripts = _get_script_and_id_tuples_from_csv(
         SpeechJob(temp_csv_path, temp_output_dir.name))
     assert isinstance(scripts, tuple)
     assert len(scripts) == 2
@@ -82,18 +91,22 @@ def test_get_scripts(temp_output_dir, temp_csv_path):
 @setup_test
 def test_create_api_jobs(temp_output_dir, temp_csv_path):
     "Has I/O operations."
-    scripts = create_open_ai_api_tts_jobs(
+    scripts = _create_open_ai_api_tts_jobs(
         SpeechJob(temp_csv_path, temp_output_dir.name))
     assert isinstance(scripts, tuple)
     assert len(scripts) == 2
+    ids_match = scripts[0].inference_id == scripts[1].inference_id
+    scripts_match = scripts[0].input == scripts[1].input
+    assert not ids_match, "Api jobs have duplicate IDs."
+    assert not scripts_match, "Api jobs have duplicate scripts."
 
 
 @setup_test
 def test_call_api(temp_output_dir, temp_csv_path):
     "Has I/O operations."
-    jobs = create_open_ai_api_tts_jobs(
+    jobs = _create_open_ai_api_tts_jobs(
         SpeechJob(temp_csv_path, temp_output_dir.name))
-    response = call_open_ai_tts_api(jobs[0])
+    response = _call_open_ai_tts_api(jobs[0])
     assert response
 
 
