@@ -84,6 +84,24 @@ def print_formatted_func_name(
     print_in_color(f"Function Name: {func_name}", color)
 
 
+def print_input_info(input_args, input_kwargs, input_types) -> None:
+    print("Input Arguments:")
+    ic(input_args)
+
+    print("Input Keyword Arugments:")
+    ic(input_kwargs)
+
+    print("Input Data Types:")
+    ic(input_types)
+
+
+def get_input_types(args, kwargs) -> list:
+    input_types = [type(arg).__name__ for arg in args]
+    input_types_kwargs =\
+        [f"{key}: {type(value).__name__}" for key, value in kwargs.items()]
+    return input_types + input_types_kwargs
+
+
 # TODO: Refactor this function (break into smaller functions).
 def wrapper_helper(func, *args, **kwargs):
     func_name = get_function_name(func)
@@ -99,17 +117,9 @@ def wrapper_helper(func, *args, **kwargs):
     # Get input arguments and their types
     input_args = args
     input_kwargs = kwargs
-    input_types = [type(arg).__name__ for arg in args] + \
-        [f"{key}: {type(value).__name__}" for key, value in kwargs.items()]
+    input_types = get_input_types(args, kwargs)
 
-    print("Input Arguments:")
-    ic(input_args)
-
-    print("Input Keyword Arugments:")
-    ic(input_kwargs)
-
-    print("Input Data Types:")
-    ic(input_types)
+    print_input_info(input_args, input_kwargs, input_types)
 
     # Execute the function and get the result
     result = func(*args, **kwargs)
@@ -117,7 +127,7 @@ def wrapper_helper(func, *args, **kwargs):
     ic(result)
 
     # End time
-    end_time = time.time()
+    end_time = get_time_now()
     duration = end_time - start_time
 
     # Get output type
@@ -130,13 +140,6 @@ def wrapper_helper(func, *args, **kwargs):
     print()
 
     return result
-
-
-# def log_data(func: Callable) -> Callable:
-#     @wraps(func)
-#     def wrapper(*args, **kwargs):
-#         return wrapper_helper(func, *args, **kwargs)
-#     return wrapper
 
 
 def first_order_function(func: Callable) -> Callable:
@@ -172,18 +175,22 @@ def run_ffmpeg_command(command: list):
 
 
 def main():
-    bucket_name = 'videos-with-subtitles'
-    source_file_name = '/Users/paulfentress/Desktop/Jellyfish/VIDEOS_WITH_SUBTITLES'
-    destination_blob_name = 'destination-filename-in-gcs'
+    # bucket_name = 'videos-with-subtitles'
+    # source_file_name = '/Users/paulfentress/Desktop/Jellyfish/VIDEOS_WITH_SUBTITLES'
+    # destination_blob_name = 'destination-filename-in-gcs'
 
-    uploaded_file_url = upload_to_gcs(
-        bucket_name,
-        source_file_name,
-        destination_blob_name
-    )
-    print(f"File uploaded to {uploaded_file_url}")
+    # uploaded_file_url = upload_to_gcs(
+    #     bucket_name,
+    #     source_file_name,
+    #     destination_blob_name
+    # )
+    # print(f"File uploaded to {uploaded_file_url}")
+    # print_in_color("Hello world!", COLOR_CODES["YELLOW"])
+    pass
 
+    # Example usage
+    if __name__ == "__main__":
+        main()
 
-# Example usage
-if __name__ == "__main__":
-    main()
+    # input_types = [type(arg).__name__ for arg in args] + \
+    #     [f"{key}: {type(value).__name__}" for key, value in kwargs.items()]

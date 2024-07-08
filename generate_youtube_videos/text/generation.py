@@ -1,33 +1,13 @@
 import random
-# Tiktoken used to count the number of tokens used in request, to
-# compute dollar amount of inference.
 import tiktoken
-
-# Icecream used for better ic statements and debugging.
 from icecream import ic
-
-# Pandas used to create video script csv and meta data.
 import pandas as pd
-
-# Regex used to clean text output from LLM.
 import re
-
-# Time used to time inference.
 import time
-
-# Datetime used to generate dates for database.
 from datetime import datetime
-
-# Used for formatting the date_time string.
 import pytz
-
-# UUID used to generate unique IDs for video scripts.
 import uuid
-
-# Open AI used for generating video scripts, and text to speech.
 import openai
-# from openai import OpenAI
-
 from configs import VIDEO_TOPICS
 from configs import QUESTIONS
 from configs import QUESTION_RULES

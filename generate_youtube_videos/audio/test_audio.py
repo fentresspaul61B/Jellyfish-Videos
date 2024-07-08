@@ -19,9 +19,9 @@ from generate_youtube_videos.audio.operations import format_time_ass
 from generate_youtube_videos.audio.operations import generate_subtitle_file_ass
 from generate_youtube_videos.file_operations import pull_test_history_data_from_GCP
 from generate_youtube_videos.file_operations import download_audio_files_from_gcp
-from generate_youtube_videos.audio.generation import get_scripts
-from generate_youtube_videos.audio.generation import create_api_jobs
-from generate_youtube_videos.audio.generation import call_api
+from generate_youtube_videos.audio.generation import get_script_and_id_tuples_from_csv
+from generate_youtube_videos.audio.generation import create_open_ai_api_tts_jobs
+from generate_youtube_videos.audio.generation import call_open_ai_tts_api
 from generate_youtube_videos.audio.generation import generate_raw_audio_files
 from generate_youtube_videos.audio.generation import SpeechJob
 from generate_youtube_videos.audio.generation import SpeechApiData
@@ -73,7 +73,8 @@ def percent_difference(length_actual: int, length_result: int) -> float:
 @setup_test
 def test_get_scripts(temp_output_dir, temp_csv_path):
     "Has I/O operations."
-    scripts = get_scripts(SpeechJob(temp_csv_path, temp_output_dir.name))
+    scripts = get_script_and_id_tuples_from_csv(
+        SpeechJob(temp_csv_path, temp_output_dir.name))
     assert isinstance(scripts, tuple)
     assert len(scripts) == 2
 
@@ -81,7 +82,8 @@ def test_get_scripts(temp_output_dir, temp_csv_path):
 @setup_test
 def test_create_api_jobs(temp_output_dir, temp_csv_path):
     "Has I/O operations."
-    scripts = create_api_jobs(SpeechJob(temp_csv_path, temp_output_dir.name))
+    scripts = create_open_ai_api_tts_jobs(
+        SpeechJob(temp_csv_path, temp_output_dir.name))
     assert isinstance(scripts, tuple)
     assert len(scripts) == 2
 
@@ -89,8 +91,9 @@ def test_create_api_jobs(temp_output_dir, temp_csv_path):
 @setup_test
 def test_call_api(temp_output_dir, temp_csv_path):
     "Has I/O operations."
-    jobs = create_api_jobs(SpeechJob(temp_csv_path, temp_output_dir.name))
-    response = call_api(jobs[0])
+    jobs = create_open_ai_api_tts_jobs(
+        SpeechJob(temp_csv_path, temp_output_dir.name))
+    response = call_open_ai_tts_api(jobs[0])
     assert response
 
 

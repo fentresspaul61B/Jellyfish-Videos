@@ -1361,3 +1361,43 @@ if __name__ == "__main__":
 #     uploaded_file_url = upload_to_gcs(
 #         bucket_name, source_file_name, destination_blob_name)
 #     print(f"File uploaded to {uploaded_file_url}")
+
+
+# def log_data(func: Callable) -> Callable:
+#     @wraps(func)
+#     def wrapper(*args, **kwargs):
+#         return wrapper_helper(func, *args, **kwargs)
+#     return wrapper
+
+
+# TODO: Rename. This name is not specific enough.
+# @first_order_function
+# def call_api(job: SpeechApiData) -> httpx.Response:
+#     """Calls open AI API to generate speech, using job dataclass."""
+#     tts_response = OPEN_AI_CLIENT.audio.speech.create(
+#         model=job.model,
+#         voice=job.voice,
+#         input=job.input
+#     )
+#     return tts_response
+
+
+# TODO: Rename. Is this really generating speech? Can this be more specific?
+# This should be renamed: run_open_ai_api_tts_job_and_save_to_mp3 or make_open_ai_tts_request
+# @higher_order_function
+# def generate_speech(
+#         job: SpeechApiData,
+#         save_to_file: Callable = save_open_ai_tts_api_response_to_mp3,
+#         call_api: Callable = call_open_ai_tts_api) -> str:
+#     """Calls speech api, and saves response to file as mp3."""
+#     return save_to_file(job, call_api(job))
+
+
+# TODO: Rename. This name is not specific enough. save_open_ai_api_response_to_file_as_mp3.
+# @first_order_function
+# def save_speech_to_file(
+#         job: SpeechApiData, api_response: httpx.Response) -> str:
+#     """Saves speech audio data to file."""
+#     file_path = f"{job.speech_job.output_dir}/{job.inference_id}.mp3"
+#     api_response.stream_to_file(file_path)
+#     return file_path
