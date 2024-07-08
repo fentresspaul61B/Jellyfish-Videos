@@ -85,7 +85,7 @@ def _create_partial_function(function: Callable, *args, **kwargs) -> Callable:
     return partial(function, *args, **kwargs)
 
 
-# TODO: Move to a general helpers file (this function could be used anywhere).
+# TODO: Move to a general helpers file.
 @first_order_function
 def _map_with_multiple_args(function: Callable, iter: Iterable) -> tuple:
     """Applies a function with multiple args to each value in an 
